@@ -1,0 +1,9 @@
+openai>=1.0.0
+python-dotenv
+plyer
+playwright
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+beautifulsoup4
+lxml

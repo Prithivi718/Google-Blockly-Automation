@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Local Blockly Python Runner</title>
+
+  <!-- Blockly core -->
+  <script src="./libs/blockly_compressed.js"></script>
+  <script src="./libs/blocks_compressed.js"></script>
+
+  <!-- Python generator -->
+  <script src="./libs/python_compressed.js"></script>
+
+  <!-- Language messages -->
+  <script src="./libs/msg/en.js"></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    #blocklyDiv {
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="blocklyDiv"></div>
+
+  <!-- Your runner -->
+  <script src="./runner.js"></script>
+</body>
+</html>

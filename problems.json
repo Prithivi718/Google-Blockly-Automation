@@ -1,0 +1,61 @@
+{
+  "team_id": "TEAM_ID0602",
+  "problems": [
+    {
+      "problem_id": "PID-1001",
+      "description": "Largest Element in an Array"
+    },  
+    {
+      "problem_id": "PID-1002",
+      "description": "Second Largest Element in an Array without sorting"
+    },
+    {
+      "problem_id": "PID-1003",
+      "description": "Check if the array is sorted"
+    },
+    {
+      "problem_id": "PID-1004",
+      "description": "Remove duplicates from sorted array"
+    },
+    {
+      "problem_id": "PID-1005",
+      "description": "Left Rotate an array by one place"
+    },
+    {
+      "problem_id": "PID-1006",
+      "description": "Left rotate an array by D places"
+    },
+    {
+      "problem_id": "PID-1007",
+      "description": "Move Zeros to end"
+    },
+    {
+      "problem_id": "PID-1008",
+      "description": "Linear Search"
+    },
+    {
+      "problem_id": "PID-1009",
+      "description": "Find the Union"
+    },
+    {
+      "problem_id": "PID-1010",
+      "description": "Find missing number in an array"
+    },
+    {
+      "problem_id": "PID-1011",
+      "description": "Maximum Consecutive Ones"
+    },
+    {
+      "problem_id": "PID-1012",
+      "description": "Find the number that appears once, and other numbers twice"
+    },
+    {
+      "problem_id": "PID-1013",
+      "description": "Longest subarray with given sum K (positives)"
+    },
+    {
+      "problem_id": "PID-1014",
+      "description": "Longest subarray with sum K (Positives + Negatives)"
+    }
+  ]
+}

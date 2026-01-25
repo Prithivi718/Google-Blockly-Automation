@@ -1,0 +1,1066 @@
+[
+  {
+    "type": "math_number",
+    "kind": "expression",
+    "category": "math",
+    "module": "Math",
+    "fields": {
+      "NUM": {
+        "type": "number",
+        "required": true
+      }
+    },
+    "value_inputs": {},
+    "statement_inputs": {}
+  },
+  {
+    "type": "variables_get",
+    "kind": "expression",
+    "category": "variables",
+    "module": "Variables",
+    "fields": {
+      "VAR": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "value_inputs": {},
+    "statement_inputs": {}
+  },
+  {
+    "type": "variables_set",
+    "kind": "statement",
+    "category": "variables",
+    "module": "Variables",
+    "fields": {
+      "VAR": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "VALUE": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "math_arithmetic",
+    "kind": "expression",
+    "category": "math",
+    "module": "Math",
+    "fields": {
+      "OP": {
+        "type": "enum",
+        "allowed": [
+          "ADD",
+          "MINUS",
+          "MULTIPLY",
+          "DIVIDE"
+        ],
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "A": {
+        "type": "expression"
+      },
+      "B": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "logic_compare",
+    "kind": "expression",
+    "category": "logic",
+    "module": "Logic",
+    "fields": {
+      "OP": {
+        "type": "enum",
+        "allowed": [
+          "EQ",
+          "NEQ",
+          "LT",
+          "LTE",
+          "GT",
+          "GTE"
+        ],
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "A": {
+        "type": "expression"
+      },
+      "B": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "logic_operation",
+    "kind": "expression",
+    "category": "logic",
+    "module": "Logic",
+    "fields": {
+      "OP": {
+        "type": "enum",
+        "allowed": [
+          "AND",
+          "OR"
+        ],
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "A": {
+        "type": "expression"
+      },
+      "B": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "controls_if",
+    "kind": "statement",
+    "category": "control",
+    "module": "Control",
+    "value_inputs": {
+      "IF0": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {
+      "DO0": {
+        "type": "statement"
+      },
+      "ELSE": {
+        "type": "statement"
+      }
+    }
+  },
+  {
+    "type": "text",
+    "kind": "expression",
+    "category": "text",
+    "module": "Text",
+    "fields": {
+      "TEXT": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "value_inputs": {},
+    "statement_inputs": {}
+  },
+  {
+    "type": "text_print",
+    "kind": "statement",
+    "category": "text",
+    "module": "Text",
+    "value_inputs": {
+      "TEXT": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "logic_boolean",
+    "category": "logic",
+    "module": "Logic",
+    "kind": "expression",
+    "fields": {
+      "BOOL": {
+        "type": "enum",
+        "values": [
+          "TRUE",
+          "FALSE"
+        ],
+        "required": true
+      }
+    },
+    "value_inputs": {},
+    "statement_inputs": {}
+  },
+  {
+    "type": "logic_negate",
+    "category": "logic",
+    "module": "Logic",
+    "kind": "expression",
+    "fields": {},
+    "value_inputs": {
+      "BOOL": {
+        "kind": "expression",
+        "required": true
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "math_single",
+    "kind": "expression",
+    "category": "math",
+    "module": "Math",
+    "fields": {
+      "OP": {
+        "type": "enum",
+        "allowed": [
+          "ABS",
+          "SQRT",
+          "NEG",
+          "LN",
+          "LOG10",
+          "EXP",
+          "POW10"
+        ],
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "NUM": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "math_modulo",
+    "kind": "expression",
+    "category": "math",
+    "module": "Math",
+    "fields": {},
+    "value_inputs": {
+      "DIVIDEND": {
+        "type": "expression"
+      },
+      "DIVISOR": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "controls_if",
+    "kind": "statement",
+    "category": "control",
+    "module": "Control",
+    "value_inputs": {
+      "IF0": {
+        "type": "expression"
+      },
+      "IF1": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {
+      "DO0": {
+        "type": "statement"
+      },
+      "DO1": {
+        "type": "statement"
+      },
+      "ELSE": {
+        "type": "statement"
+      }
+    }
+  },
+  {
+    "type": "controls_repeat_while",
+    "kind": "statement",
+    "category": "control",
+    "module": "Control",
+    "fields": {
+      "MODE": {
+        "type": "enum",
+        "allowed": [
+          "WHILE",
+          "UNTIL"
+        ],
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "BOOL": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {
+      "DO": {
+        "type": "statement"
+      }
+    }
+  },
+  {
+    "type": "controls_repeat_ext",
+    "kind": "statement",
+    "category": "control",
+    "module": "Control",
+    "value_inputs": {
+      "TIMES": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {
+      "DO": {
+        "type": "statement"
+      }
+    }
+  },
+  {
+    "type": "variables_change",
+    "kind": "statement",
+    "category": "variables",
+    "module": "Variables",
+    "fields": {
+      "VAR": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "DELTA": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "lists_create_with",
+    "kind": "expression",
+    "category": "lists",
+    "module": "Lists",
+    "fields": {
+      "ITEMS": {
+        "type": "number",
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "ADD0": {
+        "type": "expression"
+      },
+      "ADD1": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "lists_create_with",
+    "kind": "expression",
+    "category": "lists",
+    "module": "Lists",
+    "fields": {
+      "ITEMS": {
+        "type": "number",
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "ADD0": {
+        "type": "expression"
+      },
+      "ADD1": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "lists_getIndex",
+    "kind": "expression",
+    "category": "lists",
+    "module": "Lists",
+    "fields": {
+      "MODE": {
+        "type": "enum",
+        "allowed": [
+          "GET"
+        ],
+        "required": true
+      },
+      "WHERE": {
+        "type": "enum",
+        "allowed": [
+          "FROM_START"
+        ],
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "VALUE": {
+        "type": "expression"
+      },
+      "AT": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "lists_setIndex",
+    "kind": "statement",
+    "category": "lists",
+    "module": "Lists",
+    "fields": {
+      "MODE": {
+        "type": "enum",
+        "allowed": [
+          "SET"
+        ],
+        "required": true
+      },
+      "WHERE": {
+        "type": "enum",
+        "allowed": [
+          "FROM_START"
+        ],
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "LIST": {
+        "type": "expression"
+      },
+      "AT": {
+        "type": "expression"
+      },
+      "TO": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "lists_append",
+    "kind": "statement",
+    "category": "lists",
+    "module": "Lists",
+    "fields": {},
+    "value_inputs": {
+      "LIST": {
+        "type": "expression"
+      },
+      "ITEM": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "math_minmax",
+    "kind": "expression",
+    "category": "math",
+    "module": "Math",
+    "fields": {
+      "OP": {
+        "type": "enum",
+        "allowed": [
+          "MIN",
+          "MAX"
+        ],
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "A": {
+        "type": "expression"
+      },
+      "B": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "math_round",
+    "kind": "expression",
+    "category": "math",
+    "module": "Math",
+    "fields": {
+      "OP": {
+        "type": "enum",
+        "allowed": [
+          "ROUND",
+          "ROUNDUP",
+          "ROUNDDOWN"
+        ],
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "NUM": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "math_abs_diff",
+    "kind": "expression",
+    "category": "math",
+    "module": "Math",
+    "value_inputs": {
+      "A": {
+        "type": "expression"
+      },
+      "B": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "text_join",
+    "kind": "expression",
+    "category": "text",
+    "module": "Text",
+    "fields": {
+      "ITEMS": {
+        "type": "number",
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "ADD0": {
+        "type": "expression"
+      },
+      "ADD1": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "text_length",
+    "kind": "expression",
+    "category": "text",
+    "module": "Text",
+    "value_inputs": {
+      "VALUE": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "text_isEmpty",
+    "kind": "expression",
+    "category": "text",
+    "module": "Text",
+    "value_inputs": {
+      "VALUE": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "text_to_number",
+    "kind": "expression",
+    "category": "text",
+    "module": "Text",
+    "value_inputs": {
+      "TEXT": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "math_between",
+    "kind": "expression",
+    "category": "math",
+    "module": "Math",
+    "value_inputs": {
+      "VALUE": {
+        "type": "expression"
+      },
+      "LOW": {
+        "type": "expression"
+      },
+      "HIGH": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "logic_xor",
+    "kind": "expression",
+    "category": "logic",
+    "module": "Logic",
+    "value_inputs": {
+      "A": {
+        "type": "expression"
+      },
+      "B": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "procedures_defnoreturn",
+    "kind": "statement",
+    "category": "procedures",
+    "module": "Procedures",
+    "fields": {
+      "NAME": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "value_inputs": {},
+    "statement_inputs": {
+      "STACK": {
+        "type": "statement"
+      }
+    }
+  },
+  {
+    "type": "procedures_defreturn",
+    "kind": "statement",
+    "category": "procedures",
+    "module": "Procedures",
+    "fields": {
+      "NAME": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "RETURN": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {
+      "STACK": {
+        "type": "statement"
+      }
+    }
+  },
+  {
+    "type": "procedures_callnoreturn",
+    "kind": "statement",
+    "category": "procedures",
+    "module": "Procedures",
+    "fields": {
+      "NAME": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "value_inputs": {},
+    "statement_inputs": {}
+  },
+  {
+    "type": "procedures_callreturn",
+    "kind": "expression",
+    "category": "procedures",
+    "module": "Procedures",
+    "fields": {
+      "NAME": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "value_inputs": {},
+    "statement_inputs": {}
+  },
+  {
+    "type": "controls_flow_statements",
+    "kind": "statement",
+    "category": "control",
+    "module": "Control",
+    "fields": {
+      "FLOW": {
+        "type": "enum",
+        "allowed": [
+          "BREAK",
+          "CONTINUE"
+        ],
+        "required": true
+      }
+    },
+    "value_inputs": {},
+    "statement_inputs": {}
+  },
+  {
+    "type": "controls_return",
+    "kind": "statement",
+    "category": "control",
+    "module": "Control",
+    "value_inputs": {
+      "VALUE": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "lists_indexOf",
+    "kind": "expression",
+    "category": "lists",
+    "module": "Lists",
+    "fields": {
+      "END": {
+        "type": "enum",
+        "allowed": [
+          "FIRST",
+          "LAST"
+        ],
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "VALUE": {
+        "type": "expression"
+      },
+      "FIND": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "lists_contains",
+    "kind": "expression",
+    "category": "lists",
+    "module": "Lists",
+    "value_inputs": {
+      "LIST": {
+        "type": "expression"
+      },
+      "ITEM": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "logic_is_null",
+    "kind": "expression",
+    "category": "logic",
+    "module": "Logic",
+    "value_inputs": {
+      "VALUE": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "text_prompt",
+    "kind": "expression",
+    "category": "text",
+    "module": "Text",
+    "value_inputs": {
+      "TEXT": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "text_print_multiple",
+    "kind": "statement",
+    "category": "text",
+    "module": "Text",
+    "value_inputs": {
+      "TEXT": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "math_to_int",
+    "kind": "expression",
+    "category": "math",
+    "module": "Math",
+    "value_inputs": {
+      "VALUE": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "math_to_float",
+    "kind": "expression",
+    "category": "math",
+    "module": "Math",
+    "value_inputs": {
+      "VALUE": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "text_to_string",
+    "kind": "expression",
+    "category": "text",
+    "module": "Text",
+    "value_inputs": {
+      "VALUE": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "logic_between_inclusive",
+    "kind": "expression",
+    "category": "logic",
+    "module": "Logic",
+    "value_inputs": {
+      "VALUE": {
+        "type": "expression"
+      },
+      "LOW": {
+        "type": "expression"
+      },
+      "HIGH": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "logic_between_exclusive",
+    "kind": "expression",
+    "category": "logic",
+    "module": "Logic",
+    "value_inputs": {
+      "VALUE": {
+        "type": "expression"
+      },
+      "LOW": {
+        "type": "expression"
+      },
+      "HIGH": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "lists_sum",
+    "kind": "expression",
+    "category": "lists",
+    "module": "Lists",
+    "value_inputs": {
+      "LIST": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "lists_max",
+    "kind": "expression",
+    "category": "lists",
+    "module": "Lists",
+    "value_inputs": {
+      "LIST": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "lists_min",
+    "kind": "expression",
+    "category": "lists",
+    "module": "Lists",
+    "value_inputs": {
+      "LIST": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "logic_all_true",
+    "kind": "expression",
+    "category": "logic",
+    "module": "Logic",
+    "value_inputs": {
+      "LIST": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "logic_any_true",
+    "kind": "expression",
+    "category": "logic",
+    "module": "Logic",
+    "value_inputs": {
+      "LIST": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "controls_forEach",
+    "kind": "statement",
+    "category": "control",
+    "module": "Control",
+    "fields": {
+      "VAR": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "LIST": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {
+      "DO": {
+        "type": "statement"
+      }
+    }
+  },
+  {
+    "type": "controls_for",
+    "kind": "statement",
+    "category": "control",
+    "module": "Control",
+    "fields": {
+      "VAR": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "FROM": {
+        "type": "expression"
+      },
+      "TO": {
+        "type": "expression"
+      },
+      "BY": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {
+      "DO": {
+        "type": "statement"
+      }
+    }
+  },
+  {
+    "type": "lists_sort",
+    "kind": "expression",
+    "category": "lists",
+    "module": "Lists",
+    "fields": {
+      "TYPE": {
+        "type": "enum",
+        "allowed": [
+          "NUMERIC",
+          "TEXT"
+        ],
+        "required": true
+      },
+      "DIRECTION": {
+        "type": "enum",
+        "allowed": [
+          "ASCENDING",
+          "DESCENDING"
+        ],
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "LIST": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "lists_reverse",
+    "kind": "expression",
+    "category": "lists",
+    "module": "Lists",
+    "value_inputs": {
+      "LIST": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "text_charAt",
+    "kind": "expression",
+    "category": "text",
+    "module": "Text",
+    "fields": {
+      "WHERE": {
+        "type": "enum",
+        "allowed": [
+          "FROM_START"
+        ],
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "VALUE": {
+        "type": "expression"
+      },
+      "AT": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  },
+  {
+    "type": "text_getSubstring",
+    "kind": "expression",
+    "category": "text",
+    "module": "Text",
+    "fields": {
+      "WHERE1": {
+        "type": "enum",
+        "allowed": [
+          "FROM_START"
+        ],
+        "required": true
+      },
+      "WHERE2": {
+        "type": "enum",
+        "allowed": [
+          "FROM_START"
+        ],
+        "required": true
+      }
+    },
+    "value_inputs": {
+      "STRING": {
+        "type": "expression"
+      },
+      "AT1": {
+        "type": "expression"
+      },
+      "AT2": {
+        "type": "expression"
+      }
+    },
+    "statement_inputs": {}
+  }
+]

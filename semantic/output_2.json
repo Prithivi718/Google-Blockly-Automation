@@ -1,0 +1,24 @@
+{
+  "inputs": [
+    { "name": "written_score", "type": "int" },
+    { "name": "interview_score", "type": "int" }
+  ],
+  "derived": [
+    {
+      "name": "total_score",
+      "expression": { "op": "+", "args": ["written_score", "interview_score"] }
+    }
+  ],
+  "condition": {
+    "op": "and",
+    "conditions": [
+      { "left": "written_score", "op": ">=", "right": "60" },
+      { "left": "interview_score", "op": ">=", "right": "15" },
+      { "left": "total_score", "op": "<=", "right": "100" }
+    ]
+  },
+  "actions": {
+    "then": [{ "type": "print", "value": "Candidate qualifies" }],
+    "else": [{ "type": "print", "value": "Candidate does not qualify" }]
+  }
+}

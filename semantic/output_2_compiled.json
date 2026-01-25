@@ -1,0 +1,171 @@
+{
+  "type": "essentials_var_set",
+  "fields": {
+    "VAR": "written_score"
+  },
+  "value_inputs": {
+    "VALUE": {
+      "type": "essentials_cast",
+      "fields": {
+        "TYPE": "int"
+      },
+      "value_inputs": {
+        "VALUE": {
+          "type": "essentials_safe_input",
+          "fields": {
+            "TYPE": "str"
+          }
+        }
+      }
+    }
+  },
+  "next": {
+    "type": "essentials_var_set",
+    "fields": {
+      "VAR": "interview_score"
+    },
+    "value_inputs": {
+      "VALUE": {
+        "type": "essentials_cast",
+        "fields": {
+          "TYPE": "int"
+        },
+        "value_inputs": {
+          "VALUE": {
+            "type": "essentials_safe_input",
+            "fields": {
+              "TYPE": "str"
+            }
+          }
+        }
+      }
+    },
+    "next": {
+      "type": "essentials_var_set",
+      "fields": {
+        "VAR": "total_score"
+      },
+      "value_inputs": {
+        "VALUE": {
+          "type": "essentials_num_arithmetic",
+          "fields": {
+            "OP": "+"
+          },
+          "value_inputs": {
+            "A": {
+              "type": "essentials_var_get",
+              "fields": {
+                "VAR": "written_score"
+              }
+            },
+            "B": {
+              "type": "essentials_var_get",
+              "fields": {
+                "VAR": "interview_score"
+              }
+            }
+          }
+        }
+      },
+      "next": {
+        "type": "control_if_truthy",
+        "value_inputs": {
+          "EXPR": {
+            "type": "essentials_logic_and",
+            "value_inputs": {
+              "A": {
+                "type": "essentials_logic_and",
+                "value_inputs": {
+                  "A": {
+                    "type": "essentials_compare",
+                    "fields": {
+                      "OP": ">="
+                    },
+                    "value_inputs": {
+                      "A": {
+                        "type": "essentials_var_get",
+                        "fields": {
+                          "VAR": "written_score"
+                        }
+                      },
+                      "B": {
+                        "type": "essentials_var_get",
+                        "fields": {
+                          "VAR": "60"
+                        }
+                      }
+                    }
+                  },
+                  "B": {
+                    "type": "essentials_compare",
+                    "fields": {
+                      "OP": ">="
+                    },
+                    "value_inputs": {
+                      "A": {
+                        "type": "essentials_var_get",
+                        "fields": {
+                          "VAR": "interview_score"
+                        }
+                      },
+                      "B": {
+                        "type": "essentials_var_get",
+                        "fields": {
+                          "VAR": "15"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "B": {
+                "type": "essentials_compare",
+                "fields": {
+                  "OP": "<="
+                },
+                "value_inputs": {
+                  "A": {
+                    "type": "essentials_var_get",
+                    "fields": {
+                      "VAR": "total_score"
+                    }
+                  },
+                  "B": {
+                    "type": "essentials_var_get",
+                    "fields": {
+                      "VAR": "100"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "statement_inputs": {
+          "THEN": {
+            "type": "text_print",
+            "value_inputs": {
+              "TEXT": {
+                "type": "text_literal",
+                "fields": {
+                  "TEXT": "Candidate qualifies"
+                }
+              }
+            }
+          },
+          "ELSE": {
+            "type": "text_print",
+            "value_inputs": {
+              "TEXT": {
+                "type": "text_literal",
+                "fields": {
+                  "TEXT": "Candidate does not qualify"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

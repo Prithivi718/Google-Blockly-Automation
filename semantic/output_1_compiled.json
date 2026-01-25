@@ -1,0 +1,22 @@
+{
+  "type": "essentials_var_set",
+  "fields": {
+    "VAR": "greeting"
+  },
+  "value_inputs": {
+    "VALUE": {
+      "type": "essentials_cast",
+      "fields": {
+        "TYPE": "string"
+      },
+      "value_inputs": {
+        "VALUE": {
+          "type": "essentials_safe_input",
+          "fields": {
+            "TYPE": "str"
+          }
+        }
+      }
+    }
+  }
+}

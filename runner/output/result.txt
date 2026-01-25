@@ -1,0 +1,49 @@
+A_raw = None
+A_parsed = None
+A_temp = None
+A_i = None
+A_char = None
+A = None
+N = None
+TEMP = None
+i = None
+N_1 = None
+my_0 = None
+D = None
+
+def text_prompt(msg):
+  try:
+    return raw_input(msg)
+  except NameError:
+    return input(msg)
+
+def upRange(start, stop, step):
+  while start <= stop:
+    yield start
+    start += abs(step)
+
+def downRange(start, stop, step):
+  while start >= stop:
+    yield start
+    start -= abs(step)
+
+
+A_raw = text_prompt('')
+A_parsed = []
+A_temp = ''
+A_i_end = len(A_raw)
+for A_i in (1 <= A_i_end) and upRange(1, A_i_end, 1) or downRange(1, A_i_end, 1):
+  A_char = A_raw[int(A_i - 1)]
+  if A_char == ' ':
+    if A_temp != '':
+      A_parsed.append(int(A_temp))
+      A_temp = ''
+if A_temp != '':
+  A_parsed.append(int(A_temp))
+A = A_parsed
+N = len(A)
+TEMP = A[int((my_0 + 1) - 1)]
+for i in (0 <= N_1) and upRange(0, N_1, 1) or downRange(0, N_1, 1):
+  A[int(((i + D) % N + 1) - 1)] = A[int((i + 1) - 1)]
+A[int((N_1 + 1) - 1)] = TEMP
+print(A)

@@ -1,0 +1,13 @@
+{
+  "inputs": [{ "name": "greeting", "type": "string" }],
+  "derived": [],
+  "condition": { "op": "and", "conditions": [] },
+  "actions": {
+    "then": [
+        { 
+            "type": "print", "value": "Hello World" 
+        }
+    ],
+    "else": []
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "type": "essentials_var_set",
+  "fields": {
+    "VAR": "numbers"
+  },
+  "value_inputs": {
+    "VALUE": {
+      "type": "essentials_cast",
+      "fields": {
+        "TYPE": "int | float"
+      },
+      "value_inputs": {
+        "VALUE": {
+          "type": "essentials_safe_input",
+          "fields": {
+            "TYPE": "str"
+          }
+        }
+      }
+    }
+  },
+  "next": {
+    "type": "essentials_var_set",
+    "fields": {
+      "VAR": "sorted_numbers"
+    },
+    "value_inputs": {
+      "VALUE": {
+        "type": "essentials_num_arithmetic",
+        "fields": {
+          "OP": "+"
+        },
+        "value_inputs": {
+          "A": {
+            "type": "essentials_var_get",
+            "fields": {
+              "VAR": "numbers"
+            }
+          },
+          "B": {
+            "type": "essentials_var_get",
+            "fields": {
+              "VAR": "[]"
+            }
+          }
+        }
+      }
+    },
+    "next": {
+      "type": "essentials_var_set",
+      "fields": {
+        "VAR": "median"
+      },
+      "value_inputs": {
+        "VALUE": {
+          "type": "essentials_num_arithmetic",
+          "fields": {
+            "OP": "/"
+          },
+          "value_inputs": {
+            "A": {
+              "type": "essentials_var_get",
+              "fields": {
+                "VAR": "sorted_numbers[sorted_numbers.length/2]"
+              }
+            },
+            "B": {
+              "type": "essentials_var_get",
+              "fields": {
+                "VAR": "1"
+              }
+            }
+          }
+        }
+      },
+      "next": {
+        "type": "control_if_truthy",
+        "value_inputs": {
+          "EXPR": {
+            "type": "essentials_compare",
+            "fields": {
+              "OP": ">="
+            },
+            "value_inputs": {
+              "A": {
+                "type": "essentials_var_get",
+                "fields": {
+                  "VAR": "sorted_numbers.length"
+                }
+              },
+              "B": {
+                "type": "essentials_var_get",
+                "fields": {
+                  "VAR": "0"
+                }
+              }
+            }
+          }
+        },
+        "statement_inputs": {
+          "THEN": {
+            "type": "text_print",
+            "value_inputs": {
+              "TEXT": {
+                "type": "text_literal",
+                "fields": {
+                  "TEXT": "median"
+                }
+              }
+            }
+          },
+          "ELSE": null
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "inputs": [{ "name": "numbers", "type": "int | float" }],
+  "derived": [
+    {
+      "name": "sorted_numbers",
+      "expression": { "op": "+", "args": ["numbers", "[]"] }
+    },
+    {
+      "name": "median",
+      "expression": {
+        "op": "/",
+        "args": ["sorted_numbers[sorted_numbers.length/2]", "1"]
+      }
+    }
+  ],
+  "condition": {
+    "op": "and",
+    "conditions": [
+      { "left": "sorted_numbers.length", "op": ">=", "right": "0" }
+    ]
+  },
+  "actions": { "then": [{ "type": "print", "value": "median" }] }
+}

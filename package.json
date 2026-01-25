@@ -1,0 +1,22 @@
+{
+  "name": "blockly",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sukeshofficial/Innogen-agent.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sukeshofficial/Innogen-agent/issues"
+  },
+  "homepage": "https://github.com/sukeshofficial/Innogen-agent#readme",
+  "dependencies": {
+    "blockly": "^12.3.1"
+  }
+}

@@ -1,0 +1,530 @@
+{
+  "type": "variables_set",
+  "fields": {
+    "VAR": "A_raw"
+  },
+  "value_inputs": {
+    "VALUE": {
+      "type": "text_prompt_ext",
+      "fields": {
+        "TYPE": "TEXT",
+        "TEXT": "Enter A (space separated integers)"
+      }
+    }
+  },
+  "next": {
+    "type": "variables_set",
+    "fields": {
+      "VAR": "A_parsed"
+    },
+    "value_inputs": {
+      "VALUE": {
+        "type": "lists_create_with",
+        "mutation": {
+          "items": "0"
+        }
+      }
+    },
+    "next": {
+      "type": "variables_set",
+      "fields": {
+        "VAR": "A_temp"
+      },
+      "value_inputs": {
+        "VALUE": {
+          "type": "text",
+          "fields": {
+            "TEXT": ""
+          }
+        }
+      },
+      "next": {
+        "type": "controls_for",
+        "fields": {
+          "VAR": "A_i"
+        },
+        "value_inputs": {
+          "FROM": {
+            "type": "math_number",
+            "fields": {
+              "NUM": "1"
+            }
+          },
+          "TO": {
+            "type": "text_length",
+            "value_inputs": {
+              "VALUE": {
+                "type": "variables_get",
+                "fields": {
+                  "VAR": "A_raw"
+                }
+              }
+            }
+          },
+          "BY": {
+            "type": "math_number",
+            "fields": {
+              "NUM": "1"
+            }
+          }
+        },
+        "statement_inputs": {
+          "DO": {
+            "type": "variables_set",
+            "fields": {
+              "VAR": "A_char"
+            },
+            "value_inputs": {
+              "VALUE": {
+                "type": "text_charAt",
+                "fields": {
+                  "WHERE": "FROM_START"
+                },
+                "value_inputs": {
+                  "VALUE": {
+                    "type": "variables_get",
+                    "fields": {
+                      "VAR": "A_raw"
+                    }
+                  },
+                  "AT": {
+                    "type": "variables_get",
+                    "fields": {
+                      "VAR": "A_i"
+                    }
+                  }
+                }
+              }
+            },
+            "next": {
+              "type": "controls_if",
+              "value_inputs": {
+                "IF0": {
+                  "type": "logic_compare",
+                  "fields": {
+                    "OP": "EQ"
+                  },
+                  "value_inputs": {
+                    "A": {
+                      "type": "variables_get",
+                      "fields": {
+                        "VAR": "A_char"
+                      }
+                    },
+                    "B": {
+                      "type": "text",
+                      "fields": {
+                        "TEXT": " "
+                      }
+                    }
+                  }
+                }
+              },
+              "statement_inputs": {
+                "DO0": {
+                  "type": "controls_if",
+                  "value_inputs": {
+                    "IF0": {
+                      "type": "logic_compare",
+                      "fields": {
+                        "OP": "NEQ"
+                      },
+                      "value_inputs": {
+                        "A": {
+                          "type": "variables_get",
+                          "fields": {
+                            "VAR": "A_temp"
+                          }
+                        },
+                        "B": {
+                          "type": "text",
+                          "fields": {
+                            "TEXT": ""
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "statement_inputs": {
+                    "DO0": {
+                      "type": "lists_setIndex",
+                      "fields": {
+                        "MODE": "INSERT",
+                        "WHERE": "LAST"
+                      },
+                      "value_inputs": {
+                        "LIST": {
+                          "type": "variables_get",
+                          "fields": {
+                            "VAR": "A_parsed"
+                          }
+                        },
+                        "TO": {
+                          "type": "math_to_int",
+                          "value_inputs": {
+                            "VALUE": {
+                              "type": "variables_get",
+                              "fields": {
+                                "VAR": "A_temp"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "type": "variables_set",
+                        "fields": {
+                          "VAR": "A_temp"
+                        },
+                        "value_inputs": {
+                          "VALUE": {
+                            "type": "text",
+                            "fields": {
+                              "TEXT": ""
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "ELSE": {
+                  "type": "variables_set",
+                  "fields": {
+                    "VAR": "A_temp"
+                  },
+                  "value_inputs": {
+                    "VALUE": {
+                      "type": "text_join",
+                      "fields": {
+                        "ITEMS": "2"
+                      },
+                      "value_inputs": {
+                        "ADD0": {
+                          "type": "variables_get",
+                          "fields": {
+                            "VAR": "A_temp"
+                          }
+                        },
+                        "ADD1": {
+                          "type": "variables_get",
+                          "fields": {
+                            "VAR": "A_char"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "next": {
+          "type": "controls_if",
+          "value_inputs": {
+            "IF0": {
+              "type": "logic_compare",
+              "fields": {
+                "OP": "NEQ"
+              },
+              "value_inputs": {
+                "A": {
+                  "type": "variables_get",
+                  "fields": {
+                    "VAR": "A_temp"
+                  }
+                },
+                "B": {
+                  "type": "text",
+                  "fields": {
+                    "TEXT": ""
+                  }
+                }
+              }
+            }
+          },
+          "statement_inputs": {
+            "DO0": {
+              "type": "lists_setIndex",
+              "fields": {
+                "MODE": "INSERT",
+                "WHERE": "LAST"
+              },
+              "value_inputs": {
+                "LIST": {
+                  "type": "variables_get",
+                  "fields": {
+                    "VAR": "A_parsed"
+                  }
+                },
+                "TO": {
+                  "type": "math_to_int",
+                  "value_inputs": {
+                    "VALUE": {
+                      "type": "variables_get",
+                      "fields": {
+                        "VAR": "A_temp"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "next": {
+            "type": "variables_set",
+            "fields": {
+              "VAR": "A"
+            },
+            "value_inputs": {
+              "VALUE": {
+                "type": "variables_get",
+                "fields": {
+                  "VAR": "A_parsed"
+                }
+              }
+            },
+            "next": {
+              "type": "variables_set",
+              "fields": {
+                "VAR": "N"
+              },
+              "value_inputs": {
+                "VALUE": {
+                  "type": "lists_length",
+                  "value_inputs": {
+                    "VALUE": {
+                      "type": "variables_get",
+                      "fields": {
+                        "VAR": "A"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "type": "variables_set",
+                "fields": {
+                  "VAR": "TEMP"
+                },
+                "value_inputs": {
+                  "VALUE": {
+                    "type": "lists_getIndex",
+                    "fields": {
+                      "MODE": "GET",
+                      "WHERE": "FROM_START"
+                    },
+                    "value_inputs": {
+                      "VALUE": {
+                        "type": "variables_get",
+                        "fields": {
+                          "VAR": "A"
+                        }
+                      },
+                      "AT": {
+                        "type": "math_arithmetic",
+                        "fields": {
+                          "OP": "ADD"
+                        },
+                        "value_inputs": {
+                          "A": {
+                            "type": "variables_get",
+                            "fields": {
+                              "VAR": "0"
+                            }
+                          },
+                          "B": {
+                            "type": "math_number",
+                            "fields": {
+                              "NUM": "1"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "type": "controls_for",
+                  "fields": {
+                    "VAR": "i"
+                  },
+                  "value_inputs": {
+                    "FROM": {
+                      "type": "math_number",
+                      "fields": {
+                        "NUM": "0"
+                      }
+                    },
+                    "TO": {
+                      "type": "variables_get",
+                      "fields": {
+                        "VAR": "N-1"
+                      }
+                    },
+                    "BY": {
+                      "type": "math_number",
+                      "fields": {
+                        "NUM": "1"
+                      }
+                    }
+                  },
+                  "statement_inputs": {
+                    "DO": {
+                      "type": "lists_setIndex",
+                      "fields": {
+                        "MODE": "SET",
+                        "WHERE": "FROM_START"
+                      },
+                      "value_inputs": {
+                        "LIST": {
+                          "type": "variables_get",
+                          "fields": {
+                            "VAR": "A"
+                          }
+                        },
+                        "AT": {
+                          "type": "math_arithmetic",
+                          "fields": {
+                            "OP": "ADD"
+                          },
+                          "value_inputs": {
+                            "A": {
+                              "type": "math_modulo",
+                              "value_inputs": {
+                                "DIVIDEND": {
+                                  "type": "math_arithmetic",
+                                  "fields": {
+                                    "OP": "ADD"
+                                  },
+                                  "value_inputs": {
+                                    "A": {
+                                      "type": "variables_get",
+                                      "fields": {
+                                        "VAR": "i"
+                                      }
+                                    },
+                                    "B": {
+                                      "type": "variables_get",
+                                      "fields": {
+                                        "VAR": "D"
+                                      }
+                                    }
+                                  }
+                                },
+                                "DIVISOR": {
+                                  "type": "variables_get",
+                                  "fields": {
+                                    "VAR": "N"
+                                  }
+                                }
+                              }
+                            },
+                            "B": {
+                              "type": "math_number",
+                              "fields": {
+                                "NUM": "1"
+                              }
+                            }
+                          }
+                        },
+                        "TO": {
+                          "type": "lists_getIndex",
+                          "fields": {
+                            "MODE": "GET",
+                            "WHERE": "FROM_START"
+                          },
+                          "value_inputs": {
+                            "VALUE": {
+                              "type": "variables_get",
+                              "fields": {
+                                "VAR": "A"
+                              }
+                            },
+                            "AT": {
+                              "type": "math_arithmetic",
+                              "fields": {
+                                "OP": "ADD"
+                              },
+                              "value_inputs": {
+                                "A": {
+                                  "type": "variables_get",
+                                  "fields": {
+                                    "VAR": "i"
+                                  }
+                                },
+                                "B": {
+                                  "type": "math_number",
+                                  "fields": {
+                                    "NUM": "1"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "type": "lists_setIndex",
+                    "fields": {
+                      "MODE": "SET",
+                      "WHERE": "FROM_START"
+                    },
+                    "value_inputs": {
+                      "LIST": {
+                        "type": "variables_get",
+                        "fields": {
+                          "VAR": "A"
+                        }
+                      },
+                      "AT": {
+                        "type": "math_arithmetic",
+                        "fields": {
+                          "OP": "ADD"
+                        },
+                        "value_inputs": {
+                          "A": {
+                            "type": "variables_get",
+                            "fields": {
+                              "VAR": "N-1"
+                            }
+                          },
+                          "B": {
+                            "type": "math_number",
+                            "fields": {
+                              "NUM": "1"
+                            }
+                          }
+                        }
+                      },
+                      "TO": {
+                        "type": "variables_get",
+                        "fields": {
+                          "VAR": "TEMP"
+                        }
+                      }
+                    },
+                    "next": {
+                      "type": "text_print",
+                      "value_inputs": {
+                        "TEXT": {
+                          "type": "variables_get",
+                          "fields": {
+                            "VAR": "A"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

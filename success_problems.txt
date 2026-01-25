@@ -1,0 +1,27 @@
+1st Set:[Full Correct]
+06 -- 010
+all team
+
+2nd set: -> [TL]
+None
+
+3rd Set:[Mem1]
+None
+
+4th Set:[TL]
+PID -- 6960, 6961, 6968
+
+5th Set: [Mem2]
+None 
+
+6th set: [Full Correct] [TL]
+PID -- 7364 to 7378
+
+7th Set: [Mem1]
+PID -- 7499 - 7501 ; 7503, 7506 - 7508 ; 7512, 7513
+
+8th Set: [Mem2]
+PID -- 7769 - 7772, 7774, 7776 - 7783.
+
+9th Set: [TL]
+PID -- 7889, 7890, 7892 - 7899, 7901 - 7903

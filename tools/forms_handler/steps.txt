@@ -1,0 +1,5 @@
+--remote-debugging-port
+--user-data-dir
+
+chrome.exe --remote-debugging-port=9222 --user-data-dir="C:\Users\intel\AppData\Local\Google\Chrome\User Data\Profile 1"
+playwright codegen --user-data-dir="C:\Users\intel\AppData\Local\Google\Chrome\User Data\Profile 1"
