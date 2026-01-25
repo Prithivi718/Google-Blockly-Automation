@@ -4,11 +4,8 @@ Google Blockly Agent is a high-integrity program synthesis engine that converts 
 
 ## 🎥 Demo Videos
 
-Watch the InnoGen Agent in action:
-
-![InnoGen Agent Demo](./InnoGen%20Agent%20Demo%20Video.mp4)
-
-![Demo Video](./Demo-video.mp4)
+> [!NOTE]
+> Demo videos (`Demo-video.mp4` and `InnoGen Agent Demo Video.mp4`) are available locally in the project directory but excluded from the repository due to GitHub's 100 MB file size limit. To view the demos, clone the repository and add the video files to the root directory.
 
 ## 📁 Project Structure
 
