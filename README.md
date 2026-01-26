@@ -2,11 +2,6 @@
 
 Google Blockly Agent is a high-integrity program synthesis engine that converts natural language problem statements into validated Blockly XML and idiomatic Python code. It features a strict 5-phase pipeline ensuring algorithmic correctness and local execution.
 
-## 🎥 Demo Videos
-
-> [!NOTE]
-> Demo videos (`Demo-video.mp4` and `InnoGen Agent Demo Video.mp4`) are available locally in the project directory but excluded from the repository due to GitHub's 100 MB file size limit. To view the demos, clone the repository and add the video files to the root directory.
-
 ## 📁 Project Structure
 
 ```text
