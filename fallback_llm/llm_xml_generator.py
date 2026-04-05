@@ -48,6 +48,20 @@ def user_prompt(problem_text: str) -> str:
         f"{problem_text}"
     )
 
+
+def _is_valid_xml(xml_str: str) -> bool:
+    """Basic check for Blockly-style XML."""
+    if not xml_str:
+        return False
+    return "<xml" in xml_str.lower() and "</xml>" in xml_str.lower()
+
+
+def _is_valid_python(py_str: str) -> bool:
+    """Basic check for non-empty Python code."""
+    if not py_str:
+        return False
+    return len(py_str.strip()) > 5  # arbitrary minimal length
+
 def generate_fallback_outputs(problem_text: str):
     api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
@@ -64,7 +78,8 @@ def generate_fallback_outputs(problem_text: str):
 
     try:
         response = client.chat.completions.create(
-            model="qwen/qwen-2.5-7b-instruct",
+            # model="qwen/qwen-2.5-7b-instruct",
+            model="openai/gpt-4o-mini",
             messages=[
                 {"role": "system", "content": system_prompt()},
                 {"role": "user", "content": user_prompt(problem_text)}
@@ -91,37 +106,61 @@ def generate_fallback_outputs(problem_text: str):
         )
 
     # -------------------------
-    # Try extracting JSON
+    # Log raw response
     # -------------------------
+    print(f"\n--- [FALLBACK RAW RESPONSE] ---\n{raw}\n--- [END RAW] ---\n")
+
+    # -------------------------
+    # 1. Try strict JSON parse
+    # -------------------------
+    import json
+    try:
+        data = json.loads(raw.strip())
+        xml  = data.get("xml", "")
+        py   = data.get("python", "")
+
+        if _is_valid_xml(xml) and _is_valid_python(py):
+            print("[FALLBACK] Strategy: Strict JSON parse successful.")
+            return xml, py
+        else:
+            print("[FALLBACK] Strict JSON parse success, but validation failed.")
+    except Exception as e:
+        print(f"[FALLBACK] Strict JSON parse failed: {e}")
+
+    # -------------------------
+    # 2. Try heuristic extraction (fallback)
+    # -------------------------
+    print("[FALLBACK] Attempting heuristic extraction...")
     try:
         data = extract_json_from_text(raw)
+        xml  = data.get("xml", "")
+        py   = data.get("python", "")
 
-        xml = data.get("xml")
-        py = data.get("python")
+        if _is_valid_xml(xml) and _is_valid_python(py):
+            print("[FALLBACK] Strategy: Partial JSON extraction successful.")
+            return xml, py
+    except Exception as e:
+        print(f"[FALLBACK] Partial JSON extraction failed: {e}")
 
-        if not xml or not py:
-            raise ValueError("Missing xml or python")
-
-        return xml, py
-    except Exception:
-        pass
-    
     # -------------------------
-    # 2️⃣ Try separating XML + Python from raw text
+    # 3. Final heuristic separation (last resort)
     # -------------------------
     try:
         xml, py = separate_xml_and_python(raw)
-        return xml, py
-
+        if _is_valid_xml(xml) and _is_valid_python(py):
+            print("[FALLBACK] Strategy: Heuristic regex separation successful.")
+            return xml, py
     except Exception as e:
-        # -------------------------
-        # LAST RESORT: dump raw text
-        # -------------------------
-        return (
-            "<xml></xml>",
-            "# Fallback JSON extraction failed\n"
-            "# Raw LLM output below:\n\n"
-            + raw
-        )
+        print(f"[FALLBACK] Heuristic separation failed: {e}")
+
+    # -------------------------
+    # FAILURE
+    # -------------------------
+    print("[FALLBACK] CRITICAL: All parsing strategies failed.")
+    return (
+        "<xml></xml>",
+        "# Fallback Error: LLM returned invalid or empty code.\n"
+        "# Please check the logs."
+    )
         
        

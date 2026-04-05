@@ -36,7 +36,7 @@ class TestMainIntegration(unittest.TestCase):
     @patch("main.run") # Patching the helper 'run' which calls subprocess
     def test_process_problem_success(self, mock_run, mock_planner):
         # 1. Mock Planner Return
-        mock_planner.return_value = {
+        mock_planner.return_value = ({
             "inputs": [{"name": "A", "type": "list<int>"}],
             "program": [
                 {
@@ -49,7 +49,7 @@ class TestMainIntegration(unittest.TestCase):
                     "value": "max_val"
                 }
             ]
-        }
+        }, "Expanded Problem: Find largest element")
 
         # 2. Mock Subprocess Execution (Side Effects)
         def side_effect_run(cmd, cwd):

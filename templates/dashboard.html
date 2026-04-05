@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Google Blockly Agent{% endblock %}
+{% block nav_dash %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Batch Dashboard</h1>
+  <p class="page-subtitle">Run multiple problems at once and track their status in real-time.</p>
+</div>
+
+<div class="container" style="max-width:1100px; padding-bottom:4rem;">
+
+  <!-- ── Batch upload panel ────────────────────────────────────────── -->
+  <div class="card mb-3" id="batch-upload-card">
+    <div class="flex gap-2" style="align-items:center; justify-content:space-between; margin-bottom:0.75rem; flex-wrap:wrap;">
+      <h3 style="font-size:0.95rem; font-weight:600;"><img src="/static/assets/package.svg" class="icon-inline" alt="Package" /> Start New Batch</h3>
+      <a href="/input" class="btn btn-ghost btn-sm">Single Problem <img src="/static/assets/go.svg" class="icon-inline" alt="Go" /></a>
+    </div>
+
+    <div class="split-layout" style="gap:1rem; align-items:flex-start;">
+      <div>
+        <p class="text-sm text-muted mb-1">Paste or upload your <code class="mono" style="font-size:0.75rem;">problems.json</code></p>
+        <textarea
+          id="batch-json"
+          class="input-prompt"
+          style="min-height:160px; font-family:var(--font-mono); font-size:0.78rem;"
+          placeholder='{"team_id":"MY_TEAM","problems":[{"problem_id":"P1","description":"Largest element in array"}]}'
+        ></textarea>
+        <div class="flex gap-1 mt-2">
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer;">
+            <img src="/static/assets/folder.svg" class="icon-inline" alt="Folder" /> Upload JSON
+            <input type="file" id="dash-file-input" accept=".json" class="hidden" />
+          </label>
+          <button class="btn btn-primary btn-sm" id="start-batch-btn">Run Batch <img src="/static/assets/go.svg" class="icon-inline" alt="Go" /></button>
+        </div>
+        <div id="batch-status-msg" class="text-sm mt-1 hidden"></div>
+      </div>
+
+      <!-- Quick stats -->
+      <div>
+        <div class="card" style="padding:1rem; background:var(--bg-secondary);">
+          <p class="text-sm text-muted mb-1">Session Stats</p>
+          <div class="flex" style="gap:1.5rem; margin-top:0.5rem; flex-wrap:wrap;">
+            <div>
+              <div style="font-size:1.8rem; font-weight:800; color:var(--accent-light);" id="stat-total">{{ recent_jobs|length }}</div>
+              <div class="text-muted text-sm">Total Jobs</div>
+            </div>
+            <div>
+              <div style="font-size:1.8rem; font-weight:800; color:var(--success);" id="stat-ok">
+                {{ recent_jobs|selectattr('status','equalto','completed')|list|length }}
+              </div>
+              <div class="text-muted text-sm">Completed</div>
+            </div>
+            <div>
+              <div style="font-size:1.8rem; font-weight:800; color:var(--fallback);" id="stat-fallback">
+                {{ recent_jobs|selectattr('fallback_triggered')|list|length }}
+              </div>
+              <div class="text-muted text-sm">Fallback</div>
+            </div>
+            <div>
+              <div style="font-size:1.8rem; font-weight:800; color:var(--danger);" id="stat-fail">
+                {{ recent_jobs|selectattr('status','equalto','failed')|list|length }}
+              </div>
+              <div class="text-muted text-sm">Failed</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Running batch tracker (shown dynamically) ─────────────────── -->
+  <div id="batch-tracker" class="card mb-3 hidden">
+    <div class="flex gap-2" style="align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+      <div>
+        <h3 style="font-size:0.9rem; font-weight:600;">Batch Progress</h3>
+        <p class="text-sm text-muted" id="batch-tracker-id"></p>
+      </div>
+      <span class="badge badge-info" id="batch-tracker-status">Running…</span>
+    </div>
+    <div class="progress-bar-wrap mb-2">
+      <div class="progress-bar-fill" id="batch-progress-fill" style="width:0%;"></div>
+    </div>
+    <p class="text-sm text-muted" id="batch-progress-text">0 / 0 completed</p>
+  </div>
+
+  <!-- ── Recent jobs table ──────────────────────────────────────────── -->
+  <div class="card" id="jobs-table-card">
+    <div class="flex gap-2" style="align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+      <h3 style="font-size:0.95rem; font-weight:600;">Recent Jobs</h3>
+      <button class="btn btn-ghost btn-sm" id="refresh-btn"><img src="/static/assets/reload.svg" class="icon-inline" alt="Refresh" /> Refresh</button>
+    </div>
+
+    <div id="table-wrap">
+      {% if recent_jobs %}
+      <table class="data-table" id="jobs-table">
+        <thead>
+          <tr>
+            <th>Job ID</th>
+            <th>Problem</th>
+            <th>Status</th>
+            <th>Time</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for job in recent_jobs %}
+          <tr>
+            <td>{{ job.job_id }}</td>
+            <td style="max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="{{ job.problem }}">
+              {{ job.problem }}
+            </td>
+            <td>
+              {% if job.status == 'completed' %}
+                {% if job.fallback_triggered %}
+                  <span class="badge badge-fallback">Fallback</span>
+                {% else %}
+                  <span class="badge badge-success">✔ Success</span>
+                {% endif %}
+              {% elif job.status == 'failed' %}
+                <span class="badge badge-danger">Failed</span>
+              {% elif job.status == 'in_progress' %}
+                <span class="badge badge-info">Running</span>
+              {% else %}
+                <span class="badge badge-muted">{{ job.status }}</span>
+              {% endif %}
+            </td>
+            <td class="text-muted">
+              {% if job.elapsed_ms %}{{ "%.1f"|format(job.elapsed_ms / 1000) }}s{% else %}—{% endif %}
+            </td>
+            <td>
+              {% if job.status in ['completed', 'failed'] %}
+                <a href="/output/{{ job.job_id }}" class="btn btn-secondary btn-sm">View →</a>
+              {% elif job.status == 'in_progress' %}
+                <a href="/pipeline/{{ job.job_id }}" class="btn btn-ghost btn-sm">Live →</a>
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div style="text-align:center; padding:3rem 1rem;">
+        <div style="margin-bottom:0.75rem; display:flex; justify-content:center;">
+          <img src="/static/assets/jobs.svg" class="icon-large" alt="No jobs" />
+        </div>
+        <p class="text-muted">No jobs yet. Generate a problem to get started.</p>
+        <a href="/input" class="btn btn-primary btn-sm mt-2">Generate Now <img src="/static/assets/go.svg" class="icon-inline" alt="Go" /></a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // ── File upload into textarea ────────────────────────────────────
+  document.getElementById('dash-file-input').addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => { document.getElementById('batch-json').value = e.target.result; };
+    reader.readAsText(file);
+  });
+
+  // ── Batch run ────────────────────────────────────────────────────
+  let activeBatchId = null;
+  let batchPollTimer = null;
+
+  document.getElementById('start-batch-btn').addEventListener('click', async () => {
+    const msg   = document.getElementById('batch-status-msg');
+    const rawTxt = document.getElementById('batch-json').value.trim();
+
+    msg.classList.remove('hidden');
+    msg.style.color = 'var(--text-muted)';
+
+    let payload;
+    try {
+      payload = JSON.parse(rawTxt);
+    } catch(e) {
+      msg.textContent = '❌ Invalid JSON.';
+      msg.style.color = 'var(--danger)';
+      return;
+    }
+
+    msg.textContent = '🔄 Submitting batch…';
+
+    try {
+      const res  = await fetch('/api/batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ team_id: payload.team_id || 'TEAM_UI', problems: payload.problems || [] }),
+      });
+      const data = await res.json();
+      activeBatchId = data.batch_id;
+      msg.textContent = `✅ Batch started: ${data.batch_id} (${data.total} problems)`;
+      msg.style.color = 'var(--success)';
+      startBatchTracker(data.batch_id, data.total);
+    } catch(e) {
+      msg.textContent = '❌ Batch failed to start.';
+      msg.style.color = 'var(--danger)';
+    }
+  });
+
+  // ── Batch tracker ────────────────────────────────────────────────
+  function startBatchTracker(batchId, total) {
+    const tracker  = document.getElementById('batch-tracker');
+    const statusEl = document.getElementById('batch-tracker-status');
+    const progFill = document.getElementById('batch-progress-fill');
+    const progText = document.getElementById('batch-progress-text');
+    const trackerIdEl = document.getElementById('batch-tracker-id');
+
+    tracker.classList.remove('hidden');
+    trackerIdEl.textContent = `Batch ID: ${batchId}`;
+
+    async function pollBatch() {
+      try {
+        const res  = await fetch(`/api/batch/${batchId}`);
+        const data = await res.json();
+        const done = data.completed + data.failed;
+        const pct  = total > 0 ? Math.round((done / total) * 100) : 0;
+
+        progFill.style.width = pct + '%';
+        progText.textContent = `${done} / ${total} completed (${data.failed} failed)`;
+        statusEl.textContent = data.status === 'completed' ? '✔ Done' : 'Running…';
+        statusEl.className   = `badge ${data.status === 'completed' ? 'badge-success' : 'badge-info'}`;
+
+        if (data.status === 'completed') {
+          clearInterval(batchPollTimer);
+          document.getElementById('refresh-btn').click();
+        }
+      } catch(e) { /* ignore polling errors silently */ }
+    }
+
+    pollBatch();
+    batchPollTimer = setInterval(pollBatch, 2000);
+  }
+
+  // ── Refresh table ────────────────────────────────────────────────
+  document.getElementById('refresh-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('refresh-btn');
+    btn.innerHTML = '<img src="/static/assets/reload.svg" class="icon-inline" alt="Reload" /> Refreshing…';
+    btn.disabled = true;
+    try {
+      const res  = await fetch('/api/history');
+      const data = await res.json();
+      rebuildTable(data.jobs || []);
+    } catch(e) { /* silent */ }
+    btn.innerHTML = '<img src="/static/assets/reload.svg" class="icon-inline" alt="Reload" /> Refresh';
+    btn.disabled = false;
+  });
+
+  function rebuildTable(jobs) {
+    const wrap = document.getElementById('table-wrap');
+    if (!jobs.length) {
+      wrap.innerHTML = `<div style="text-align:center;padding:3rem 1rem;">
+        <div style="margin-bottom:0.75rem; display:flex; justify-content:center;">
+          <img src="/static/assets/jobs.svg" class="icon-large" alt="No jobs" />
+        </div>
+        <p class="text-muted">No jobs yet.</p></div>`;
+      return;
+    }
+
+    const STATUS_BADGE = {
+      completed: (j) => j.fallback ? '<span class="badge badge-fallback">Fallback</span>' : '<span class="badge badge-success"><img src="/static/assets/tick-circle.svg" class="icon-inline" style="filter: brightness(0) invert(1);" /> Success</span>',
+      failed:    ()  => '<span class="badge badge-danger">Failed</span>',
+      in_progress:(j)=> '<span class="badge badge-info">Running</span>',
+    };
+
+    const rows = jobs.map(j => {
+      const sb  = (STATUS_BADGE[j.status] || (() => `<span class="badge badge-muted">${j.status}</span>`))(j);
+      const time = j.elapsed_ms ? `${(j.elapsed_ms/1000).toFixed(1)}s` : '—';
+      const action = j.status === 'completed' || j.status === 'failed'
+        ? `<a href="/output/${j.job_id}" class="btn btn-secondary btn-sm">View →</a>`
+        : j.status === 'in_progress'
+        ? `<a href="/pipeline/${j.job_id}" class="btn btn-ghost btn-sm">Live →</a>`
+        : '—';
+      return `<tr>
+        <td>${j.job_id}</td>
+        <td style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${j.problem}">${j.problem}</td>
+        <td>${sb}</td>
+        <td class="text-muted">${time}</td>
+        <td>${action}</td>
+      </tr>`;
+    }).join('');
+
+    wrap.innerHTML = `<table class="data-table">
+      <thead><tr><th>Job ID</th><th>Problem</th><th>Status</th><th>Time</th><th>Action</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  // ── Check for batch param in URL ─────────────────────────────────
+  const urlBatch = new URLSearchParams(location.search).get('batch');
+  if (urlBatch) startBatchTracker(urlBatch, Infinity);
+</script>
+{% endblock %}

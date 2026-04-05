@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FORGEGRID" />
+  <title>{% block title %}Google Blockly Agent{% endblock %}</title>
+  <link rel="icon" type="image/png" href="/static/favicon.png" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="/static/css/style.css" />
+
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+
+  <!-- ── Navigation ─────────────────────────────────────────────── -->
+  <nav class="navbar" id="main-navbar">
+    <a class="nav-brand" href="/">
+      <span class="nav-logo">
+        <img src="/static/assets/ai.svg" alt="AI" />
+      </span>
+      <span class="nav-title">Blockly<span class="accent">Agent</span></span>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="/"         class="nav-link {% block nav_home %}{% endblock %}">Home</a></li>
+      <li><a href="/input"    class="nav-link {% block nav_input %}{% endblock %}">Generate</a></li>
+      <li><a href="/dashboard" class="nav-link {% block nav_dash %}{% endblock %}">Dashboard</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <button id="theme-toggle" class="btn-icon" title="Toggle dark/light mode" aria-label="Toggle theme">
+        <img src="/static/assets/sun.svg" class="theme-icon" alt="Toggle Theme" />
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── Page content ───────────────────────────────────────────── -->
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ── Footer ─────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <span>Google Blockly Agent &mdash; AI-powered program synthesis pipeline</span>
+    <span class="footer-sep">·</span>
+    <a href="https://github.com/Prithivi718/Google-Blockly-Automation" target="_blank" class="footer-link">GitHub</a>
+  </footer>
+
+  <!-- ── Theme toggle script (inline so no flash) ──────────────── -->
+  <script>
+    const toggle = document.getElementById('theme-toggle');
+    const icon   = toggle.querySelector('.theme-icon');
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      icon.src = theme === 'dark' ? '/static/assets/sun.svg' : '/static/assets/moon.svg';
+      localStorage.setItem('ba-theme', theme);
+    }
+
+    // Restore saved preference
+    const saved = localStorage.getItem('ba-theme') || 'dark';
+    applyTheme(saved);
+
+    toggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    });
+  </script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

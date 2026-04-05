@@ -5,7 +5,7 @@ This prompt is designed to produce:
 - Semantically correct
 - Deterministic
 - Minimal
-semantic plans that align with the compiler + validator.
+semantic plans (IR format) that the SemanticCompiler translates to Blockly.
 """
 
 
@@ -48,15 +48,31 @@ def system_prompt() -> str:
         "       * 'assign': Set a variable to a value (expression).\n"
         "       * 'print': Output a value.\n"
         "       * 'if': Conditional logic with 'then' and 'else' blocks.\n"
-        "       * 'foreach': Iterate over a list.\n"
-        "       * 'while': Repeat while a condition is true.\n"
+        "       * 'foreach': Iterate over a list. Fields: var, list, body.\n"
+        "       * 'loop_repeat': Iterate from start to end. Fields: var, start, to, body.\n"
+        "       * 'while': Repeat while a condition is true. Fields: condition, body.\n"
         "       * 'break' / 'continue': Control flow.\n"
-        "       * 'list_op': List operations (append, get, set, length).\n\n"
+        "       * 'list_op': List operations. Fields: operation (append), list, value.\n"
+        "       * 'list_set': Set list[index] = value. Fields: list, index, value.\n"
+        "       * 'return': Return a value from the program.\n\n"
 
         "3) expressions:\n"
-        "   - Arithmetic: +, -, *, /, %, abs, min, max, sqrt, pow.\n"
-        "   - Logic: >, <, >=, <=, ==, !=, and, or, not.\n"
-        "   - List creation: [a, b, c] (create_list).\n\n"
+        "   - Variable reference: Use the variable name directly as a string (e.g., \"total\").\n"
+        "   - Numeric Literal: { \"op\": \"number\", \"value\": 10 }\n"
+        "   - String Literal: { \"op\": \"text\", \"value\": \"hello\" }\n"
+        "   - Arithmetic: { \"op\": \"+\", \"args\": [left, right] } (valid ops: +, -, *, /, mod).\n"
+        "   - Unary math: { \"op\": \"abs\", \"args\": [expr] }\n"
+        "   - Min/Max: { \"op\": \"min\", \"args\": [a, b] } or { \"op\": \"max\", \"args\": [a, b] }\n"
+        "   - Logic compare: { \"op\": \">\", \"left\": left, \"right\": right } "
+        "(valid ops: >, <, >=, <=, ==, !=).\n"
+        "   - Logic combine: { \"op\": \"and\", \"args\": [a, b] } or { \"op\": \"or\", \"args\": [a, b] }\n"
+        "   - List get: { \"op\": \"list_get\", \"args\": [list_name, 0_based_index] }\n"
+        "   - List length: { \"op\": \"len\", \"args\": [list_name] }\n"
+        "   - List creation: { \"op\": \"create_list\", \"args\": [a, b, c] }\n\n"
+
+        "IMPORTANT INDEXING RULE:\n"
+        "   - Use 0-based indexing in all expressions (e.g., first element = index 0).\n"
+        "   - The compiler will automatically convert to 1-based indexing for Blockly.\n\n"
 
         "================ REQUIRED OUTPUT SHAPE ================\n"
         "{\n"
@@ -88,8 +104,8 @@ def system_prompt() -> str:
         "    {\n"
         "      \"type\": \"if\",\n"
         "      \"condition\": { \"op\": \">\", \"left\": \"total\", \"right\": 100 },\n"
-        "      \"then\": [ { \"type\": \"print\", \"value\": \"Big Sum\" } ],\n"
-        "      \"else\": [ { \"type\": \"print\", \"value\": \"Small Sum\" } ]\n"
+        "      \"then\": [ { \"type\": \"print\", \"value\": { \"op\": \"text\", \"value\": \"Big Sum\" } } ],\n"
+        "      \"else\": [ { \"type\": \"print\", \"value\": { \"op\": \"text\", \"value\": \"Small Sum\" } } ]\n"
         "    }\n"
         "  ]\n"
         "}\n\n"
@@ -104,12 +120,17 @@ def system_prompt() -> str:
 
 def user_prompt(problem_text: str) -> str:
     return (
-        "Convert the following problem into a semantic plan JSON.\n\n"
+        "Generate a semantic plan (IR JSON) for the following problem.\n\n"
 
         "PROBLEM:\n"
         f"{problem_text}\n\n"
 
-        "Remember: Provide REASONING first, then the SEMANTIC PLAN JSON."
+        "Rules:\n"
+        "- Output REASONING first, then SEMANTIC PLAN JSON.\n"
+        "- The JSON must contain 'inputs' and 'program' keys.\n"
+        "- Use 0-based indexing in list_get expressions.\n"
+        "- Do NOT output Blockly JSON or Python code.\n"
+        "- Return ONLY the semantic IR."
     )
 
 
@@ -122,7 +143,7 @@ def filler_prompt(skeleton: dict, problem_text: str) -> str:
         "- Replace __ACC__ with a valid variable name (letters, underscores).\n"
         "- Replace __ITEM__ with a valid loop variable name.\n"
         "- Replace __CMP__ with one of: '>' , '<', '==' , '!=' , '>=' , '<='.\n"
-        "- Use only the block vocabulary: assign, foreach, if, list_get, list_op, print.\n"
+        "- Use only the IR vocabulary: assign, foreach, if, list_get, list_op, print.\n"
         "- Output exactly one JSON object (the filled skeleton) and nothing else.\n"
         "If you cannot fill the skeleton validly, output: {\"error\":\"not_expressible\"}.\n"
         "PROBLEM DESCRIPTION:\n"
@@ -131,3 +152,19 @@ def filler_prompt(skeleton: dict, problem_text: str) -> str:
         f"{skeleton_str}\n"
         "Fill and return JSON only."
     )
+
+
+# ---------------------------------------------------------------------------
+# NEW DIRECT BLOCKLY PROMPT — kept here for reference / future use
+# ---------------------------------------------------------------------------
+# def system_prompt_blockly_direct() -> str:
+#     """
+#     Generates Blockly JSON directly without IR intermediary.
+#     NOT currently used — the SemanticCompiler IR path is more reliable.
+#     """
+#     return (
+#         "You are a Blockly program generator.\n\n"
+#         "Your task is to convert a problem statement into a VALID Blockly JSON tree.\n"
+#         "You MUST strictly follow the Blockly schema from the capability summary.\n"
+#         ...
+#     )

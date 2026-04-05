@@ -27,7 +27,7 @@ def system_prompt() -> str:
         "3) Decompose complex steps into simple logical operations.\n"
         "4) Output the rewritten technical problem statement.\n"
         "5) You MAY include a brief 'Logical Analysis' section before the final statement.\n"
-        "6) You MUST include a line '# PROBLEM_TAG: <tag>' at the very top. Valid tags: largest_element, move_zeros, rotate_array, sum_elements, count_elements, linear_search. If unsure, pick the closest.\n"
+        "6) You SHOULD include a line '# PROBLEM_TAG: <tag>' at the very top. Use specific tags if they fit perfectly (largest_element, move_zeros, rotate_array, sum_elements, count_elements, linear_search). Otherwise, use a descriptive tag (e.g., star_pattern, math_sequence) or 'general_logic'.\n"
     )
 
 

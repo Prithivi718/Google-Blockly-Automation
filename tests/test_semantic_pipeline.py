@@ -79,7 +79,7 @@ class TestSemanticPipeline(unittest.TestCase):
 
         # 2. Planner Execution
         try:
-            plan = generate_semantic_plan(problem)
+            plan, _ = generate_semantic_plan(problem)
         except Exception as e:
             self.fail(f"Planner failed: {e}")
 

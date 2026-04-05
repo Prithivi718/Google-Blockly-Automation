@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Google Blockly Agent — AI Pipeline for Visual Programming{% endblock %}
+{% block nav_home %}active{% endblock %}
+
+{% block content %}
+<!-- ── Hero ──────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <img src="/static/assets/ai.svg" class="icon-inline" style="margin-right:0.25rem;" alt="AI" /> AI-Powered Program Synthesis
+  </div>
+  <h1 class="hero-title">Natural Language<br/>to Blockly Code</h1>
+  <p class="hero-sub">
+    Describe an algorithm in plain English. Watch the agent plan, validate,
+    and assemble visual Blockly blocks — then export clean Python code instantly.
+  </p>
+  <div class="hero-actions">
+    <a href="/input" class="btn btn-primary btn-lg" id="cta-generate">
+      <img src="/static/assets/go.svg" class="icon-inline" alt="Go" /> Start Generating
+    </a>
+    <a href="/dashboard" class="btn btn-ghost btn-lg" id="cta-dashboard">
+      View Dashboard
+    </a>
+  </div>
+</section>
+
+<!-- ── 3-Step onboarding ──────────────────────────────────────────── -->
+<section class="container">
+  <div class="onboarding-steps">
+
+    <div class="ob-step" id="ob-step-1">
+      <div class="ob-step-num">01</div>
+      <div class="ob-step-icon"><img src="/static/assets/set-plan.svg" class="icon-step" alt="Plan" /></div>
+      <h3 class="ob-step-title">Describe the Problem</h3>
+      <p class="ob-step-desc">
+        Type any algorithmic problem in plain English — "Find the largest element",
+        "Linear search in an array", or "Move zeros to the end".
+      </p>
+    </div>
+
+    <div class="ob-step" id="ob-step-2">
+      <div class="ob-step-num">02</div>
+      <div class="ob-step-icon"><img src="/static/assets/flow.svg" class="icon-step" alt="Flow" /></div>
+      <h3 class="ob-step-title">Watch the Pipeline</h3>
+      <p class="ob-step-desc">
+        The AI pipeline runs: Planning → Skeleton Selection → Validation →
+        IR Compilation → XML Generation. Each step updates live.
+      </p>
+    </div>
+
+    <div class="ob-step" id="ob-step-3">
+      <div class="ob-step-num">03</div>
+      <div class="ob-step-icon"><img src="/static/assets/puzzle.svg" class="icon-step" alt="Puzzle" /></div>
+      <h3 class="ob-step-title">Get Visual + Code Output</h3>
+      <p class="ob-step-desc">
+        See your algorithm as interactive Blockly blocks. Python code is
+        generated in-browser. Copy or download both instantly.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- ── Quick-start sample ──────────────────────────────────────── -->
+  <div class="card mt-3" id="quickstart-card" style="max-width:640px; margin: 0 auto 4rem;">
+    <p class="text-sm text-muted mb-1">✨ Try a sample problem to get started</p>
+    <div class="chips-row" id="quickstart-chips">
+      <span class="chip" data-problem="Largest Element in an Array">Largest Element</span>
+      <span class="chip" data-problem="Linear Search">Linear Search</span>
+      <span class="chip" data-problem="Move Zeros to End">Move Zeros</span>
+      <span class="chip" data-problem="Find Missing Number in an Array">Missing Number</span>
+    </div>
+    <div class="flex gap-2 mt-3" id="quickstart-preview" style="display:none !important;">
+      <span class="text-sm" id="quickstart-problem-text" style="color:var(--accent-light); flex:1;"></span>
+      <button class="btn btn-primary btn-sm" id="quickstart-run-btn">Run <img src="/static/assets/go.svg" class="icon-inline" alt="Go" /></button>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Quickstart chip interaction
+  let selectedProblem = null;
+
+  document.querySelectorAll('#quickstart-chips .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#quickstart-chips .chip').forEach(c => c.style.borderColor = '');
+      chip.style.borderColor = 'var(--accent)';
+      chip.style.color = 'var(--accent-light)';
+      selectedProblem = chip.dataset.problem;
+
+      const preview = document.getElementById('quickstart-preview');
+      preview.style.display = 'flex';
+      document.getElementById('quickstart-problem-text').textContent = `"${selectedProblem}"`;
+    });
+  });
+
+  document.getElementById('quickstart-run-btn').addEventListener('click', async () => {
+    if (!selectedProblem) return;
+    const btn = document.getElementById('quickstart-run-btn');
+    btn.textContent = '...';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/api/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ problem: selectedProblem }),
+      });
+      const data = await res.json();
+      window.location.href = `/pipeline/${data.job_id}`;
+    } catch(e) {
+      btn.textContent = 'Error — retry';
+      btn.disabled = false;
+    }
+  });
+</script>
+{% endblock %}

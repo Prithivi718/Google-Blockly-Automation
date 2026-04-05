@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+{% block title %}Output — {{ problem[:40] }}{% endblock %}
+
+{% block head_extra %}
+<!-- Blockly from CDN (no npm install required) -->
+<!-- Blockly core and generators (local project libs) -->
+<script src="/libs/blockly_compressed.js"></script>
+<script src="/libs/blocks_compressed.js"></script>
+<script src="/libs/python_compressed.js"></script>
+<script src="/libs/msg/en.js"></script>
+<!-- highlight.js for Python syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="flex gap-2" style="align-items:center; margin-bottom:0.5rem; flex-wrap:wrap;">
+    <a href="/input" class="btn btn-ghost btn-sm">← New Problem</a>
+    <span class="badge badge-info">Job #{{ job_id }}</span>
+
+    {% if status == 'completed' %}
+      {% if fallback_triggered %}
+        <span class="badge badge-fallback">Fallback Used</span>
+      {% else %}
+        <span class="badge badge-success">✔ Strict Pipeline</span>
+      {% endif %}
+    {% endif %}
+
+    {% if elapsed_ms %}
+      <span class="badge badge-muted">⏱ {{ "%.1f"|format(elapsed_ms / 1000) }}s</span>
+    {% endif %}
+  </div>
+  <h1 class="page-title" style="font-size:1.3rem;">Output: "{{ problem }}"</h1>
+
+  <!-- Beginner / Advanced toggle -->
+  <div class="flex gap-2 mt-2" style="align-items:center;">
+    <label class="toggle-row">
+      <label class="toggle-switch">
+        <input type="checkbox" id="mode-toggle" />
+        <div class="toggle-track"></div>
+      </label>
+      <span>Advanced Mode</span>
+    </label>
+  </div>
+</div>
+
+<div class="container" style="max-width:1200px; padding-bottom:4rem;">
+
+  <!-- ── Loading overlay (shown until result fetched) ──────────────── -->
+  <div id="loading-overlay" style="text-align:center; padding:5rem 1rem;">
+    <div class="spinner" style="width:48px;height:48px;border-width:3px;margin:0 auto 1rem;"></div>
+    <p class="text-muted">Fetching results…</p>
+  </div>
+
+  <!-- ── System Messages (Fallback / Unsupported Warnings) ────────── -->
+  <div id="system-messages" style="max-width: 860px; margin: 0 auto;">
+    
+    <!-- Fallback Mode Banner -->
+    <div id="fallback-banner" class="fallback-banner hidden">
+      <div class="fallback-banner-icon">⚠️</div>
+      <div class="fallback-banner-content">
+        <h3>Fallback Mode Activated</h3>
+        <p>This problem uses features not yet supported in the strict execution engine.</p>
+        <p style="font-size: 0.8rem; margin-top: 0.2rem; opacity: 0.8;">AI-generated solution provided. Results may not be fully reliable.</p>
+      </div>
+    </div>
+
+    <!-- Unsupported Feature Warning -->
+    <div id="unsupported-warning" class="unsupported-box hidden">
+      <div class="unsupported-box-icon">⚠️</div>
+      <div id="unsupported-msg" class="unsupported-box-text">Unsupported Feature Detected</div>
+    </div>
+
+    <!-- Why this happened (Collapsible) -->
+    <details id="why-happened-section" class="why-section hidden">
+      <summary class="why-section-summary">
+        <span>Why this happened</span>
+        <span class="chevron">▼</span>
+      </summary>
+      <div class="why-section-content">
+        <p class="text-sm text-secondary mb-3">
+          The execution engine supports a limited set of operations to ensure correctness. 
+          Some advanced constructs are still under development.
+        </p>
+
+        <div class="why-section-title">Unsupported categories include:</div>
+        <ul class="why-section-list">
+          <li>Range-based loops</li>
+          <li>Continue / return statements</li>
+          <li>Advanced transformations (repeat, reverse)</li>
+        </ul>
+
+        <div class="why-section-footer">
+          <h4>What you can do</h4>
+          <p>• Rewrite the problem using simple loops and conditions</p>
+          <p>• Or proceed with the fallback-generated result</p>
+        </div>
+      </div>
+    </details>
+
+  </div>
+
+  <!-- ── Main content (hidden until loaded) ────────────────────────── -->
+  <div id="output-body" class="hidden">
+
+    <!-- ── Toolbar ───────────────────────────────────────────────────── -->
+    <div class="flex gap-1 mb-2" style="flex-wrap:wrap;">
+      <button class="btn btn-secondary btn-sm" id="copy-xml-btn"><img src="/static/assets/copy.svg" class="icon-inline" alt="Copy" /> Copy XML</button>
+      <button class="btn btn-secondary btn-sm" id="download-xml-btn"><img src="/static/assets/download.svg" class="icon-inline" alt="Download" /> Download XML</button>
+    </div>
+
+    <!-- ── Split view: Blockly + Python ───────────────────────────────── -->
+    <div class="split-layout">
+
+      <!-- Left: Blockly workspace -->
+      <div>
+        <h3 class="text-sm text-muted mb-1"><img src="/static/assets/puzzle.svg" class="icon-inline" alt="Workspace" /> Blockly Workspace</h3>
+        <div id="blockly-div"></div>
+        <p class="text-sm text-muted mt-1" style="font-style:italic;">
+          Visual representation of the generated program.
+        </p>
+      </div>
+
+      <!-- Right: Python code -->
+      <div>
+        <h3 class="text-sm text-muted mb-1"><img src="/static/assets/python.svg" class="icon-inline" alt="Python" /> Python Code <span class="badge badge-info" style="font-size:0.65rem;">client-side</span></h3>
+        
+        <div class="code-box">
+          <div class="code-header">
+            <div class="code-header-left">
+              <img src="/static/assets/python.svg" style="width:14px;height:14px;" alt="py" />
+              <span>program.py</span>
+            </div>
+            <div class="code-header-actions">
+              <button class="code-header-btn" id="copy-py-btn-new" title="Copy Code">
+                <img src="/static/assets/copy.svg" alt="Copy" />
+              </button>
+              <button class="code-header-btn" id="download-py-btn-new" title="Download Code">
+                <img src="/static/assets/download.svg" alt="Download" />
+              </button>
+            </div>
+          </div>
+          <pre id="python-block" class="code-block" style="max-height:380px; overflow:auto;"><code id="python-code" class="language-python"># Generating…</code></pre>
+        </div>
+
+        <p class="text-sm text-muted mt-1" style="font-style:italic;">
+          Generated in-browser via Blockly.Python.workspaceToCode().
+        </p>
+      </div>
+
+    </div>
+
+    <!-- ── Bottom tabs (Advanced: IR + Logs) ─────────────────────────── -->
+    <div class="card mt-3 advanced-only" id="advanced-panel">
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="ir-tab">IR JSON</button>
+        <button class="tab-btn" data-tab="analysis-tab">Analysis</button>
+        <button class="tab-btn" data-tab="xml-tab">Raw XML</button>
+      </div>
+
+      <div id="ir-tab" class="tab-panel active">
+        <pre class="code-block"><code id="ir-view" class="language-json">{}</code></pre>
+      </div>
+
+      <div id="analysis-tab" class="tab-panel">
+        <h4 class="text-sm mb-1">Expanded Problem Statement</h4>
+        <pre class="code-block" style="white-space: pre-wrap; font-size: 0.8rem; height: 150px; overflow: auto;"><code id="expansion-view"></code></pre>
+        <h4 class="text-sm mt-3 mb-1">Matched Skeleton</h4>
+        <div class="badge badge-info" id="skeleton-view">None</div>
+      </div>
+
+      <div id="xml-tab" class="tab-panel">
+        <pre class="code-block"><code id="xml-view" class="language-xml"></code></pre>
+      </div>
+    </div>
+
+  </div><!-- /#output-body -->
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Blockly render helper -->
+<script src="/static/js/blockly_render.js?v={{ range(1, 1000) | random }}"></script>
+
+<script>
+  const JOB_ID = "{{ job_id }}";
+
+  // ── Live Python Updates ──────────────────────────────────────────
+  window.onBlocklyWorkspaceChanged = function() {
+    const python = window.generatePython();
+    if (!python || python.startsWith("# Error")) return;
+    
+    if (window._pythonCode !== python) {
+      const codeEl = document.getElementById('python-code');
+      codeEl.textContent = python;
+      codeEl.removeAttribute('data-highlighted');
+      codeEl.className = 'language-python';
+      hljs.highlightElement(codeEl);
+      window._pythonCode = python;
+    }
+  };
+
+  // ── Tab switching ────────────────────────────────────────────────
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ── Beginner / Advanced toggle ───────────────────────────────────
+  const modeToggle = document.getElementById('mode-toggle');
+  modeToggle.addEventListener('change', () => {
+    document.getElementById('advanced-panel').style.display = modeToggle.checked ? 'block' : 'none';
+  });
+  // Default: beginner = advanced panel hidden
+  document.getElementById('advanced-panel').style.display = 'none';
+
+  // ── Fetch result & populate UI ───────────────────────────────────
+  async function loadResult() {
+    try {
+      const res  = await fetch(`/api/result/${JOB_ID}`);
+      if (res.status === 202) {
+        // Still running — redirect back to pipeline view
+        window.location.href = `/pipeline/${JOB_ID}`;
+        return;
+      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      // Show body
+      document.getElementById('loading-overlay').style.display = 'none';
+      document.getElementById('output-body').classList.remove('hidden');
+
+      // ── Render Blockly ─────────────────────────────────────────
+      const pythonArea = document.getElementById('python-code');
+      const pythonLabel = document.querySelector('.badge-info[style*="font-size:0.65rem;"]');
+
+      if (data.xml && data.xml.trim() !== '<xml></xml>') {
+        window.renderBlockly(data.xml);
+        
+        // If LLM provided Python (fallback), use it. Else generate from Blockly.
+        if (data.python && data.fallback_triggered) {
+          pythonArea.textContent = data.python;
+          pythonLabel.textContent = 'LLM-generated';
+          pythonLabel.className = 'badge badge-fallback';
+        } else {
+          const generated = window.generatePython();
+          pythonArea.textContent = generated;
+          pythonLabel.textContent = 'Blockly-generated';
+          pythonLabel.className = 'badge badge-info';
+        }
+        
+        hljs.highlightElement(pythonArea);
+        window._pythonCode = pythonArea.textContent;
+      } else {
+        document.getElementById('blockly-div').innerHTML =
+          '<div style="display:grid;place-items:center;height:100%;color:var(--text-muted);">No XML generated</div>';
+        
+        if (data.python) {
+             pythonArea.textContent = data.python;
+             pythonLabel.textContent = 'LLM-generated';
+             pythonLabel.className = 'badge badge-fallback';
+             hljs.highlightElement(pythonArea);
+             window._pythonCode = data.python;
+        } else {
+             pythonArea.textContent = '# No output generated';
+        }
+      }
+
+      // Populate Analysis tab
+      document.getElementById('expansion-view').textContent = data.expansion || 'No expansion available';
+      document.getElementById('skeleton-view').textContent = data.skeleton || 'None';
+
+      // ── IR JSON tab ────────────────────────────────────────────
+      const irEl = document.getElementById('ir-view');
+      irEl.textContent = JSON.stringify(data.ir || {}, null, 2);
+      hljs.highlightElement(irEl);
+
+      // ── Raw XML tab ────────────────────────────────────────────
+      const xmlEl = document.getElementById('xml-view');
+      xmlEl.textContent = data.xml || '';
+      hljs.highlightElement(xmlEl);
+      window._xmlCode = data.xml || '';
+
+      // ── Fallback notice ────────────────────────────────────────
+      if (data.fallback_triggered) {
+        // --- NEW Logic for User-Facing Messages ---
+        // 1. Fallback Banner
+        document.getElementById('fallback-banner').classList.remove('hidden');
+      }
+
+      // 2. Unsupported Feature Warning
+      if (data.status === 'failed' || data.fallback_triggered) {
+         const reason = data.fallback_reason || data.error || "";
+         if (reason.startsWith("unsupported_")) {
+            const warningBox = document.getElementById('unsupported-warning');
+            const warningMsg = document.getElementById('unsupported-msg');
+            
+            // Map reason to readable item
+            let item = "This feature";
+            if (reason.includes(':')) {
+               item = reason.split(':')[1].trim();
+            } else {
+               item = reason.replace('unsupported_', '').replace(/_/g, ' ');
+            }
+
+            // Capitalize first letter
+            item = item.charAt(0).toUpperCase() + item.slice(1);
+
+            const prefix = reason.startsWith('unsupported_op') ? "Operation" 
+                         : reason.startsWith('unsupported_step') ? "Step" 
+                         : "Feature";
+
+            warningMsg.textContent = `${prefix} '${item}' is not supported yet.`;
+            warningBox.classList.remove('hidden');
+         }
+      }
+
+      // 3. Why Section (if fallback or error)
+      if (data.fallback_triggered || data.status === 'failed') {
+         document.getElementById('why-happened-section').classList.remove('hidden');
+      }
+
+    } catch(e) {
+      document.getElementById('loading-overlay').innerHTML =
+        `<p style="color:var(--danger)">Error loading result: ${e.message}</p>
+         <a href="/input" class="btn btn-secondary btn-sm mt-2">← Try Again</a>`;
+    }
+  }
+
+  loadResult();
+
+  // ── Copy / download helpers ──────────────────────────────────────
+  function copyToClipboard(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = '✔ Copied!';
+      setTimeout(() => btn.textContent = orig, 2000);
+    });
+  }
+
+  function downloadFile(content, filename, mime='text/plain') {
+    const blob = new Blob([content], {type: mime});
+    const a    = Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(blob), download: filename,
+    });
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  document.getElementById('copy-xml-btn').addEventListener('click', function() {
+    copyToClipboard(window._xmlCode || '', this);
+  });
+  document.getElementById('download-xml-btn').addEventListener('click', () => {
+    downloadFile(window._xmlCode || '', `blockly_${JOB_ID}.xml`, 'application/xml');
+  });
+  
+  // Python actions (New buttons)
+  document.getElementById('copy-py-btn-new').addEventListener('click', function() {
+    copyToClipboard(window._pythonCode || '', this);
+  });
+  document.getElementById('download-py-btn-new').addEventListener('click', () => {
+    downloadFile(window._pythonCode || '', `program_${JOB_ID}.py`, 'text/x-python');
+  });
+</script>
+{% endblock %}

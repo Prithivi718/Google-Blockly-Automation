@@ -30,7 +30,7 @@ BLOCK_TREE_OUT = ROOT / "semantic" / "output" / "block_tree.json"
 def run_single_test(problem_text: str):
     print("🧪 Running single test mode")
 
-    semantic_plan = generate_semantic_plan(problem_text)
+    semantic_plan, _ = generate_semantic_plan(problem_text)
     print(semantic_plan)
 
     validator = CapabilityValidator(str(NORMALIZED_BLOCKS))
@@ -111,7 +111,7 @@ def process_problem(problem: dict, team_id: str):
         # =========================
         # MODULE 1: Semantic Planner
         # =========================
-        semantic_plan = generate_semantic_plan(description)
+        semantic_plan, _ = generate_semantic_plan(description)
 
         if semantic_plan.get("error"):
             # show_notification(f"Semantic Error", f"{semantic_plan['error']}")

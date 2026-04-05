@@ -13,7 +13,7 @@ BLOCK_TREE_OUT = ROOT / "semantic" / "output" / "block_tree.json"
 problem_text = "Check whether three sides can form a valid triangle."
 
 # Handcrafted semantic plan equivalent to the sample problem:
-semantic_plan = generate_semantic_plan(problem_text)
+semantic_plan, _ = generate_semantic_plan(problem_text)
 print(semantic_plan)
 
 

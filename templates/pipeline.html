@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}Pipeline — {{ problem[:40] }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="flex gap-2" style="align-items:center; margin-bottom:0.5rem;">
+    <a href="/input" class="btn btn-ghost btn-sm">← Back</a>
+    <span class="badge badge-info">Job #{{ job_id }}</span>
+    <span id="status-badge" class="badge badge-muted">Queued</span>
+    <span id="fallback-badge" class="badge badge-fallback hidden">Fallback</span>
+  </div>
+  <h1 class="page-title" style="font-size:1.4rem;">
+    🔬 Pipeline Running
+  </h1>
+  <p class="page-subtitle" id="problem-display">"{{ problem }}"</p>
+</div>
+
+<div class="container" style="max-width:860px; padding-bottom:4rem;">
+
+  <!-- ── Step tracker ─────────────────────────────────────────────── -->
+  <div class="card">
+    <div class="step-track" id="step-track">
+      <!-- Populated by JS using /api/status data -->
+      <div class="step-item pending" id="step-Semantic-Planning">
+        <div class="step-dot"><img src="/static/assets/set-plan.svg" class="icon-inline" alt="Plan" /></div>
+        <div class="step-label">Planning</div>
+        <div class="step-detail" id="detail-Semantic-Planning">—</div>
+      </div>
+      <div class="step-item pending" id="step-Validation">
+        <div class="step-dot"><img src="/static/assets/tick-circle.svg" class="icon-inline" alt="Validation" /></div>
+        <div class="step-label">Validation</div>
+        <div class="step-detail" id="detail-Validation">—</div>
+      </div>
+      <div class="step-item pending" id="step-IR-Compilation">
+        <div class="step-dot"><img src="/static/assets/code.svg" class="icon-inline" alt="Compile" /></div>
+        <div class="step-label">IR Compile</div>
+        <div class="step-detail" id="detail-IR-Compilation">—</div>
+      </div>
+      <div class="step-item pending" id="step-XML-Generation">
+        <div class="step-dot"><img src="/static/assets/xml.svg" class="icon-inline" alt="XML" /></div>
+        <div class="step-label">XML</div>
+        <div class="step-detail" id="detail-XML-Generation">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Error card (hidden until failure) ─────────────────────────── -->
+  <div class="card mt-3 hidden" id="error-card" style="border-color: var(--danger);">
+    <h3 style="color:var(--danger); margin-bottom:0.4rem;">⛔ Pipeline Error</h3>
+    <p class="text-sm text-muted" id="error-msg"></p>
+    <a href="/input" class="btn btn-secondary btn-sm mt-2">← Try Again</a>
+  </div>
+
+  <!-- ── Redirect notice ───────────────────────────────────────────── -->
+  <div class="card mt-3 hidden" id="redirect-notice" style="border-color: var(--success); text-align:center; padding:2rem;">
+    <div style="font-size:2rem; margin-bottom:0.5rem;">✅</div>
+    <h3 style="color:var(--success); margin-bottom:0.4rem;">Pipeline Complete!</h3>
+    <p class="text-sm text-muted mb-2">Redirecting to output view…</p>
+    <div class="spinner" style="margin:0 auto;"></div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const JOB_ID   = "{{ job_id }}";
+  const POLL_MS  = 1500;
+
+  const STEP_ID_MAP = {
+    "Semantic Planning": "step-Semantic-Planning",
+    "Validation":        "step-Validation",
+    "IR Compilation":    "step-IR-Compilation",
+    "XML Generation":    "step-XML-Generation",
+  };
+
+  const STEP_ICONS = {
+    pending: {
+      "Semantic Planning": `<img src="/static/assets/set-plan.svg" class="icon-inline" alt="Plan" />`,
+      "Validation":        `<img src="/static/assets/tick-circle.svg" class="icon-inline" alt="Validation" />`,
+      "IR Compilation":    `<img src="/static/assets/code.svg" class="icon-inline" alt="Compile" />`,
+      "XML Generation":    `<img src="/static/assets/xml.svg" class="icon-inline" alt="XML" />`
+    },
+    in_progress: { "Semantic Planning": "⏳", "Validation": "⏳", "IR Compilation": "⏳", "XML Generation": "⏳" },
+    completed:   { "Semantic Planning": "✔",  "Validation": "✔",  "IR Compilation": "✔",  "XML Generation": "✔"  },
+    failed:      { "Semantic Planning": "✖",  "Validation": "✖",  "IR Compilation": "✖",  "XML Generation": "✖"  },
+    skipped:     { "Semantic Planning": "—",  "Validation": "—",  "IR Compilation": "—",  "XML Generation": "—"  },
+  };
+
+  function updateStep(stepName, status, detail) {
+    const id  = STEP_ID_MAP[stepName];
+    if (!id) return;
+    const el  = document.getElementById(id);
+    const dot = el.querySelector('.step-dot');
+
+    // Remove old status classes
+    el.className = `step-item ${status}`;
+
+    // Update icon
+    const icons = STEP_ICONS[status] || {};
+    const iconHtml = icons[stepName] || '•';
+    dot.innerHTML = iconHtml;
+
+    if (status === 'in_progress') {
+      const s = document.createElement('span');
+      s.className = 'spinner';
+      s.style.cssText = 'width:16px;height:16px;position:absolute;';
+      dot.innerHTML = '';
+      dot.appendChild(s);
+    }
+
+    const detailEl = document.getElementById('detail-' + id.replace('step-', ''));
+    if (detail && detailEl) detailEl.textContent = detail;
+  }
+
+  function setStatusBadge(status, isFallback=false) {
+    const badge   = document.getElementById('status-badge');
+    if (isFallback) {
+      badge.className = 'badge badge-fallback';
+      badge.textContent = 'Fallback';
+      return;
+    }
+    const classMap = {
+      queued:      'badge-muted',
+      in_progress: 'badge-info',
+      completed:   'badge-success',
+      failed:      'badge-danger',
+      fallback:    'badge-fallback',
+    };
+    badge.className = `badge ${classMap[status] || 'badge-muted'}`;
+    badge.textContent = status.replace('_', ' ').replace(/^\w/, c => c.toUpperCase());
+  }
+
+  let pollTimer;
+
+  async function poll() {
+    try {
+      const res  = await fetch(`/api/status/${JOB_ID}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      // Update global status badge
+      setStatusBadge(data.status, data.fallback_triggered);
+
+      // Update step indicators
+      (data.steps || []).forEach(step => updateStep(step.name, step.status, step.detail));
+
+      // Fallback indicator
+      if (data.fallback_triggered) {
+        document.getElementById('fallback-badge').classList.remove('hidden');
+      }
+
+      // Terminal states
+      if (data.status === 'completed') {
+        clearInterval(pollTimer);
+        const elapsed = data.elapsed_ms ? `${(data.elapsed_ms/1000).toFixed(1)}s` : null;
+        if (elapsed) {
+          const eb = document.getElementById('elapsed-badge');
+          eb.textContent = `⏱ ${elapsed}`;
+          eb.classList.remove('hidden');
+        }
+        document.getElementById('redirect-notice').classList.remove('hidden');
+        setTimeout(() => window.location.href = `/output/${JOB_ID}`, 1800);
+
+      } else if (data.status === 'failed') {
+        clearInterval(pollTimer);
+        document.getElementById('error-card').classList.remove('hidden');
+        document.getElementById('error-msg').textContent = data.error || 'Unknown error';
+      }
+
+    } catch(e) {
+      console.error(`Polling error: ${e.message}`);
+    }
+  }
+
+  // Start polling immediately, then every POLL_MS
+  poll();
+  pollTimer = setInterval(poll, POLL_MS);
+</script>
+{% endblock %}

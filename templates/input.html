@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% block title %}Generate — Google Blockly Agent{% endblock %}
+{% block nav_input %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Generate Blockly Program</h1>
+  <p class="page-subtitle">Describe your algorithm problem. The agent will plan, validate, and build it.</p>
+</div>
+
+<div class="container" style="max-width:780px; padding-bottom: 4rem;">
+
+  <!-- ── Smart input panel ─────────────────────────────────────────── -->
+  <div class="card">
+    <label for="problem-input" class="text-sm text-muted mb-1" style="display:block;">
+      Problem Statement
+    </label>
+
+    <div class="input-wrapper">
+      <textarea
+        id="problem-input"
+        class="input-prompt"
+        placeholder="e.g. Find the largest element in an array of integers..."
+        rows="4"
+        spellcheck="true"
+        autocomplete="off"
+      ></textarea>
+
+      <button class="btn btn-primary btn-sm input-run-btn" id="run-btn" disabled>
+        <span id="run-btn-icon"><img src="/static/assets/go.svg" class="icon-inline" alt="Go" /></span>
+        <span id="run-btn-text">Generate</span>
+      </button>
+    </div>
+
+    <!-- Detected category badge -->
+    <div class="flex gap-1 mt-2" style="align-items:center; min-height:24px;">
+      <span class="text-muted text-sm" id="category-label" style="display:none;">Detected:</span>
+      <span class="badge badge-info" id="category-badge" style="display:none;"></span>
+      <span class="text-muted text-sm" id="category-none" style="display:none; font-style:italic;">
+        (category will show after typing)
+      </span>
+    </div>
+
+    <!-- Suggestion chips -->
+    <div class="mt-3">
+      <p class="text-sm text-muted mb-1">Quick suggestions</p>
+      <div class="chips-row" id="suggestion-chips">
+        {% for s in suggestions %}
+        <span class="chip" data-value="{{ s }}">{{ s }}</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Batch mode section ─────────────────────────────────────────── -->
+  <div class="card mt-3" id="batch-section">
+    <div class="flex gap-2" style="align-items:center; justify-content:space-between; margin-bottom: 0.75rem;">
+      <div>
+        <h3 style="font-size:0.95rem; font-weight:600;">Batch Processing</h3>
+        <p class="text-sm text-muted">Upload a <code class="mono" style="font-size:0.75rem;">problems.json</code> or paste JSON to run multiple problems.</p>
+      </div>
+      <label class="toggle-row">
+        <label class="toggle-switch">
+          <input type="checkbox" id="batch-toggle" />
+          <div class="toggle-track"></div>
+        </label>
+        <span>Batch</span>
+      </label>
+    </div>
+
+    <div id="batch-controls" class="hidden">
+      <div class="input-wrapper">
+        <textarea
+          id="batch-input"
+          class="input-prompt"
+          style="min-height:160px; font-family: var(--font-mono); font-size: 0.8rem;"
+          placeholder='{"team_id": "MY_TEAM", "problems": [{"problem_id": "PID-001", "description": "Largest element..."}]}'
+          rows="6"
+        ></textarea>
+      </div>
+
+      <div class="flex gap-1 mt-2" style="align-items:center; justify-content:space-between;">
+        <label class="btn btn-ghost btn-sm" style="cursor:pointer;">
+          <img src="/static/assets/folder.svg" class="icon-inline" alt="Folder" /> Upload JSON
+          <input type="file" id="batch-file" accept=".json" class="hidden" />
+        </label>
+        <button class="btn btn-primary btn-sm" id="batch-run-btn">
+          <span>Run Batch <img src="/static/assets/go.svg" class="icon-inline" alt="Go" /></span>
+        </button>
+      </div>
+
+      <div id="batch-feedback" class="mt-2 text-sm" style="display:none;"></div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // ── Category keyword map ─────────────────────────────────────────
+  const CATEGORIES = [
+    { keywords: ['largest', 'maximum', 'max', 'biggest', 'aggregate'], label: 'Aggregate / foreach' },
+    { keywords: ['linear search', 'find element', 'search array'],    label: 'Linear Search' },
+    { keywords: ['move zeros', 'move zeroes'],                         label: 'Partition' },
+    { keywords: ['rotate', 'array'],                                   label: 'Index Rotation' },
+    { keywords: ['missing', 'sum'],                                    label: 'Math / Aggregation' },
+    { keywords: ['sort', 'sorted'],                                    label: 'Sorting / Scan' },
+  ];
+
+  function detectCategory(text) {
+    const t = text.toLowerCase();
+    for (const cat of CATEGORIES) {
+      if (cat.keywords.some(k => t.includes(k))) return cat.label;
+    }
+    return null;
+  }
+
+  // ── Input state ──────────────────────────────────────────────────
+  const inputEl   = document.getElementById('problem-input');
+  const runBtn    = document.getElementById('run-btn');
+  const catLabel  = document.getElementById('category-label');
+  const catBadge  = document.getElementById('category-badge');
+  const catNone   = document.getElementById('category-none');
+
+  inputEl.addEventListener('input', () => {
+    const val = inputEl.value.trim();
+    runBtn.disabled = val.length < 5;
+
+    if (val.length > 3) {
+      const cat = detectCategory(val);
+      if (cat) {
+        catLabel.style.display = 'inline';
+        catBadge.style.display = 'inline-flex';
+        catBadge.textContent = cat;
+        catNone.style.display = 'none';
+      } else {
+        catLabel.style.display = 'none';
+        catBadge.style.display = 'none';
+        catNone.style.display = 'inline';
+      }
+    } else {
+      catLabel.style.display = catBadge.style.display = catNone.style.display = 'none';
+    }
+  });
+
+  // ── Suggestion chips ─────────────────────────────────────────────
+  document.querySelectorAll('#suggestion-chips .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      inputEl.value = chip.dataset.value;
+      inputEl.dispatchEvent(new Event('input'));
+      inputEl.focus();
+    });
+  });
+
+  // ── Single run ───────────────────────────────────────────────────
+  runBtn.addEventListener('click', async () => {
+    const problem = inputEl.value.trim();
+    if (!problem) return;
+
+    document.getElementById('run-btn-icon').textContent = '';
+    document.getElementById('run-btn-text').textContent = 'Running…';
+    runBtn.disabled = true;
+
+    // Add spinner
+    const spinner = document.createElement('span');
+    spinner.className = 'spinner';
+    spinner.style.cssText = 'width:14px;height:14px;margin-right:4px;';
+    runBtn.prepend(spinner);
+
+    try {
+      const res  = await fetch('/api/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ problem }),
+      });
+      const data = await res.json();
+      window.location.href = `/pipeline/${data.job_id}`;
+    } catch(e) {
+      document.getElementById('run-btn-icon').innerHTML = '<img src="/static/assets/go.svg" class="icon-inline" alt="Go" />';
+      document.getElementById('run-btn-text').textContent = 'Error — Retry';
+      runBtn.disabled = false;
+      spinner.remove();
+    }
+  });
+
+  // ── Batch toggle ─────────────────────────────────────────────────
+  document.getElementById('batch-toggle').addEventListener('change', function() {
+    document.getElementById('batch-controls').classList.toggle('hidden', !this.checked);
+  });
+
+  // ── Batch file upload ────────────────────────────────────────────
+  document.getElementById('batch-file').addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      document.getElementById('batch-input').value = e.target.result;
+    };
+    reader.readAsText(file);
+  });
+
+  // ── Batch run ────────────────────────────────────────────────────
+  document.getElementById('batch-run-btn').addEventListener('click', async () => {
+    const rawText = document.getElementById('batch-input').value.trim();
+    const feedback = document.getElementById('batch-feedback');
+    feedback.style.display = 'block';
+
+    let payload;
+    try {
+      payload = JSON.parse(rawText);
+    } catch(e) {
+      feedback.textContent = '❌ Invalid JSON. Please check the format.';
+      feedback.style.color = 'var(--danger)';
+      return;
+    }
+
+    feedback.textContent = '🔄 Starting batch…';
+    feedback.style.color = 'var(--text-muted)';
+
+    try {
+      const res  = await fetch('/api/batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          team_id:  payload.team_id  || 'TEAM_UI',
+          problems: payload.problems || [],
+        }),
+      });
+      const data = await res.json();
+      window.location.href = `/dashboard?batch=${data.batch_id}`;
+    } catch(e) {
+      feedback.textContent = '❌ Batch request failed. Check server logs.';
+      feedback.style.color = 'var(--danger)';
+    }
+  });
+</script>
+{% endblock %}

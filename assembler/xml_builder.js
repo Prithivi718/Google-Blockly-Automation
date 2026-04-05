@@ -14,8 +14,12 @@ const BLOCK_TYPE_MAP = {
   // Semantic Adapter Mappings
   assign: "variables_set",
   foreach: "controls_forEach",
+  loop_repeat: "controls_for",
   if: "controls_if",
   list_get: "lists_getIndex",
+  list_set: "lists_setIndex",
+  break: "controls_flow_statements",
+  continue: "controls_flow_statements",
   print: "text_print",
 
   // Legacy / Direct
@@ -83,6 +87,16 @@ export function buildBlockXML(block) {
         name === "OP"
       ) {
         value = block.type === "essentials_logic_and" ? "AND" : "OR";
+      }
+
+      // Mapping for controls_flow_statements (break/continue)
+      if (block.type === "controls_flow_statements" && name === "FLOW") {
+          value = value.toUpperCase();
+      }
+      
+      // Additional mapping for loop variables if needed
+      if (blockType === "controls_for" && name === "VAR") {
+          // ensure VAR field is output
       }
 
       xml += `<field name="${name}">${String(value)}</field>`;

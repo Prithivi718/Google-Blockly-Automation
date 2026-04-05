@@ -353,6 +353,15 @@
     "statement_inputs": {}
   },
   {
+    "type": "lists_length",
+    "kind": "expression",
+    "value_inputs": {
+      "VALUE": {
+        "type": "expression"
+      }
+    }
+  },
+  {
     "type": "lists_create_with",
     "kind": "expression",
     "category": "lists",

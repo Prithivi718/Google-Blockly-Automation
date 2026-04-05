@@ -4,12 +4,8 @@ A_temp = None
 A_i = None
 A_char = None
 A = None
-N = None
-TEMP = None
-i = None
-N_1 = None
-my_0 = None
-D = None
+largest_side = None
+side = None
 
 def text_prompt(msg):
   try:
@@ -41,9 +37,8 @@ for A_i in (1 <= A_i_end) and upRange(1, A_i_end, 1) or downRange(1, A_i_end, 1)
 if A_temp != '':
   A_parsed.append(int(A_temp))
 A = A_parsed
-N = len(A)
-TEMP = A[int((my_0 + 1) - 1)]
-for i in (0 <= N_1) and upRange(0, N_1, 1) or downRange(0, N_1, 1):
-  A[int(((i + D) % N + 1) - 1)] = A[int((i + 1) - 1)]
-A[int((N_1 + 1) - 1)] = TEMP
-print(A)
+largest_side = A[int((0 + 1) - 1)]
+for side in A:
+  if side > largest_side:
+    largest_side = side
+print(largest_side)
