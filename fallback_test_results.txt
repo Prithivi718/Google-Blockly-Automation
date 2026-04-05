@@ -1,0 +1,51 @@
+
+==================================================
+TESTING PROBLEM: Move zeros to end of an array [1, 2, 0, 4, 3, 0, 5, 0]
+==================================================
+
+--- [FINAL XML] ---
+<xml><block type="controls_flow" id="M01" x="180" y="150"><statement name="DO"><block type="math_arithmetic" id="M02" x="300" y="150"><field name="OP">ADD</field><value name="A"><block type="math_number" id="M03" x="420" y="150"><field name="NUM">1</field></block></value><value name="B"><block type="math_number" id="M04" x="540" y="150"><field name="NUM">0</field></block></value></block></statement></block></xml>
+
+--- [FINAL PYTHON] ---
+def move_zerosToEnd(arr):
+    non_zero = [x for x in arr if x != 0]
+    zeros = [x for x in arr if x == 0]
+    result = non_zero + zeros
+    return result
+
+arr = [1, 2, 0, 4, 3, 0, 5, 0]
+output = move_zerosToEnd(arr)
+print(output)
+
+✅ RESULT: SUCCESS
+
+==================================================
+TESTING PROBLEM: Find the largest element in a list
+==================================================
+
+--- [FINAL XML] ---
+<xml><block type="controls_flow_statements"><statement name="DO"><block type="variables_get"><field name="VAR">numbers</field></block></statement><statement name="IF"><block type="logic_compare"><value name="A"><block type="math_random_int"><field name="FROM">1</field><field name="TO">100</field></block></block><value name="B"><block type="math_random_int"><field name="FROM">1</field><field name="TO">100</field></block></value><next><block type="logic_compare"><value name="A"><block type="math_r...
+
+--- [FINAL PYTHON] ---
+import random
+
+numbers = [random.randint(1, 100) for _ in range(10)]
+largest = numbers[0]
+for num in numbers:
+    if num > largest:
+        largest = num
+print(f'Largest number is {largest}')
+
+✅ RESULT: SUCCESS
+
+==================================================
+TESTING PROBLEM: Create a script that says hello world
+==================================================
+
+--- [FINAL XML] ---
+<xml><block type="text_print"><value name="TEXT"><block type="text_hello"></block><block type="text_join"><value name="A"><block type="text"><field name="TEXT"> </field></block></value><value name="B"><block type="text"><field name="TEXT">world</field></block></value></block></value></block></xml>
+
+--- [FINAL PYTHON] ---
+print('Hello world')
+
+✅ RESULT: SUCCESS

@@ -42,12 +42,24 @@
 
     Blockly.Blocks['math_minmax'] = {
         init: function() {
+            this.appendDummyInput().appendField(new Blockly.FieldDropdown([["min", "MIN"], ["max", "MAX"]]), "OP");
             this.appendValueInput("A").setCheck("Number");
             this.appendValueInput("B").setCheck("Number");
-            this.appendField(new Blockly.FieldDropdown([["min", "MIN"], ["max", "MAX"]]), "OP");
             this.setOutput(true, "Number");
             this.setColour(230);
             this.setTooltip("Returns min/max of two numbers");
+        }
+    };
+
+    Blockly.Blocks['controls_repeat_while'] = {
+        init: function() {
+            this.appendValueInput("BOOL").setCheck("Boolean").appendField("repeat");
+            this.appendDummyInput().appendField(new Blockly.FieldDropdown([["while", "WHILE"], ["until", "UNTIL"]]), "MODE");
+            this.appendStatementInput("DO").appendField("do");
+            this.setPreviousStatement(true, null);
+            this.setNextStatement(true, null);
+            this.setColour(120);
+            this.setTooltip("Repeat while/until a condition is met");
         }
     };
 
@@ -95,6 +107,17 @@
             var valA = Blockly.Python.valueToCode(block, 'A', Blockly.Python.ORDER_NONE) || '0';
             var valB = Blockly.Python.valueToCode(block, 'B', Blockly.Python.ORDER_NONE) || '0';
             return [op + '(' + valA + ', ' + valB + ')', Blockly.Python.ORDER_FUNCTION_CALL];
+        };
+
+        Blockly.Python.forBlock['controls_repeat_while'] = function(block) {
+            var mode = block.getFieldValue('MODE');
+            var cond = Blockly.Python.valueToCode(block, 'BOOL', 
+                mode == 'WHILE' ? Blockly.Python.ORDER_NONE : Blockly.Python.ORDER_LOGICAL_NOT) || 'False';
+            var branch = Blockly.Python.statementToCode(block, 'DO') || '  pass\n';
+            if (mode == 'UNTIL') {
+                cond = 'not ' + cond;
+            }
+            return 'while ' + cond + ':\n' + branch;
         };
 
         Blockly.Python.forBlock['text_to_string'] = function(block) {

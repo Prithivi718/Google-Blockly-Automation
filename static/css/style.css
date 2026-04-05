@@ -492,9 +492,12 @@ body::before {
   line-height: 1.65;
   color: var(--text-code);
   overflow: auto;
+  overflow-x: auto;
   max-height: 420px;
   scrollbar-width: thin;
   white-space: pre;
+  word-break: normal;
+  word-wrap: normal;
 }
 
 /* ── Tab switcher ────────────────────────────────────────────────── */
@@ -528,7 +531,7 @@ body::before {
 /* ── Split layout ────────────────────────────────────────────────── */
 .split-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1.25rem;
 }
 

@@ -78,8 +78,8 @@ def generate_fallback_outputs(problem_text: str):
 
     try:
         response = client.chat.completions.create(
-            # model="qwen/qwen-2.5-7b-instruct",
-            model="openai/gpt-4o-mini",
+            model="qwen/qwen-2.5-7b-instruct",
+            # model="openai/gpt-4o-mini",
             messages=[
                 {"role": "system", "content": system_prompt()},
                 {"role": "user", "content": user_prompt(problem_text)}
