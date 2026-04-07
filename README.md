@@ -4,7 +4,7 @@ Google Blockly Agent is a high-integrity program synthesis engine that converts 
 
 ## 🎥 Demo Video
 
-👉 [Watch the full pipeline demonstration here](https://drive.google.com/file/d/1k_fExnBmHGbbB1kXQ_jvz8osYrjomXPz/view)
+👉 [Watch the full pipeline demonstration here](https://drive.google.com/file/d/1TxipvBnuZr--PxwBZoWC7m71qUStKq5D/view?usp=sharing)
 
 
 ## 📁 Project Structure
